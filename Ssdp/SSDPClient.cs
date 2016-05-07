@@ -24,6 +24,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
+using SatIp.Scan.Logging;
 //using SatIp.DiscoverySample.Logging;
 
 namespace SatIp
@@ -70,7 +71,7 @@ namespace SatIp
             _multicastIp = "239.255.255.250";
             _multicastPort = 1900;
             _unicastPort = 1901;            
-            _unicastClient = new UdpClient(_unicastPort);
+            _unicastClient = new UdpClient(new IPEndPoint(IPAddress.Parse(GetLocalIPAddress()),_unicastPort));
             _multicastClient = new UdpClient(_multicastPort);
             var ipSsdp = IPAddress.Parse(_multicastIp);
             _multicastClient.JoinMulticastGroup(ipSsdp);
@@ -110,6 +111,7 @@ namespace SatIp
                     if (msearchMatch.Success)
                     {
                         responseString = msearchMatch.Groups[3].Captures[0].Value;
+                        Logger.Info("M-Search Response. \r\n\r\n{0} ", responseString);
                         var headerDictionary = Parse(responseString);
                         string host;
                         headerDictionary.TryGetValue("host", out host);
@@ -124,6 +126,7 @@ namespace SatIp
                     if (notifyMatch.Success)
                     {
                         responseString = notifyMatch.Groups[3].Captures[0].Value;
+                        Logger.Info("Notify Response. \r\n\r\n{0} ", responseString);
                         var headerDictionary = Parse(responseString);
                         string location;
                         headerDictionary.TryGetValue("location", out location);
@@ -208,6 +211,7 @@ namespace SatIp
                     if (httpMatch.Success)
                     {
                         responseString = httpMatch.Groups[5].Captures[0].Value;
+                        Logger.Info("Http Response.\r\n\r\n{0} ", responseString);
                         var headerDictionary = Parse(responseString);
                         string location;
                         headerDictionary.TryGetValue("location", out location);
@@ -407,6 +411,18 @@ namespace SatIp
         private bool _disposed;
 
         #endregion
+        public static string GetLocalIPAddress()
+        {
+            var host = Dns.GetHostEntry(Dns.GetHostName());
+            foreach (var ip in host.AddressList)
+            {
+                if (ip.AddressFamily == AddressFamily.InterNetwork)
+                {
+                    return ip.ToString();
+                }
+            }
+            throw new Exception("Local IP Address Not Found!");
+        }
 
     }
     public class SatIpDeviceFoundArgs : EventArgs
