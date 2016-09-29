@@ -414,7 +414,8 @@ namespace SatIp
                         }
                         else
                         {
-                            MessageBox.Show(String.Format("Setup retuns {0}", statuscode), "Failure", MessageBoxButtons.OK);
+                            var message = GetMessageFromStatuscode(statuscode);
+                            MessageBox.Show(String.Format("Setup retuns {0}", message), statuscode.ToString(), MessageBoxButtons.OK);
                         }
                     }
                     else
@@ -423,10 +424,12 @@ namespace SatIp
                     }
                     /* Say the Sat>IP server we want Receives the ProgramAssociationTable */
                     _device.RtspSession.Play("&addpids=0");
+                    /* Say the Sat>IP server we want Receives the Recieption Details SDP */
                     statuscode = _device.RtspSession.Describe(out signalLocked, out signallevel, out signalQuality);
                     if (!statuscode.Equals(RtspStatusCode.Ok))
                     {
-                        MessageBox.Show(String.Format("Describe retuns {0}", statuscode), "Failure", MessageBoxButtons.OK);
+                        var message = GetMessageFromStatuscode(statuscode);
+                        MessageBox.Show(String.Format("Describe retuns {0}", message), statuscode.ToString(), MessageBoxButtons.OK);
                     }
                     SetControlPropertyThreadSafe(pgbSignalLevel, "Value", signallevel);
                     SetControlPropertyThreadSafe(pgbSignalQuality, "Value", signalQuality);
@@ -485,7 +488,7 @@ namespace SatIp
                             AddResults(int.Parse(strArray[0]), p.Pid, p.Number);
                        
                     }
-                    Thread.Sleep(100);
+                    //Thread.Sleep(100);
                     Index++;                                       
                 }                
             }
@@ -524,6 +527,59 @@ namespace SatIp
                 lwResults.Items.Add(lstItem);
             }
 
+        }
+        private string GetMessageFromStatuscode(RtspStatusCode code)
+        {
+            var retval = string.Empty;
+            switch (code)
+            {
+                case RtspStatusCode.BadRequest:
+                    retval = "The request could not be understood by the server due to a malformed syntax. Returned when missing a character, inconsistent request (duplicate attributes), etc.";
+                    break;
+                case RtspStatusCode.Forbidden:
+                    retval = "The server understood the request, but is refusing to fulfil it. Returned when passing an attribute value not understood by the server in a query, or an out-of-range value.";
+                    break;
+                case RtspStatusCode.NotFound:
+                    retval = "The server has not found anything matching the Request-URI. Returned when requesting a stream with a streamID that does not exist.";
+                    break;
+                case RtspStatusCode.MethodNotAllowed:
+                    retval = "The method specified in the request is not allowed for the resource identified by the Request-URI. Returned when applying a SETUP, PLAY or TEARDOWN method on an RTSP URI identifying the server.";
+                    break;
+                case RtspStatusCode.NotAcceptable:
+                    retval = "The resource identified by the request is only capable of generating response message bodies which have content characteristics not acceptable according to the accept headers sent in the request. Issuing a DESCRIBE request with an accept header different from application/sdp.";
+                    break;
+                case RtspStatusCode.RequestTimeOut:
+                    retval = "The client did not produce a request within the time that the server was prepared to wait. The client may repeat the request without modifications at any later time. E.g. issuing a PLAY request after the communication link had been idle for a period of time. The time interval has exceeded the value specified by the timeout parameter in the Session: header field of a SETUP response.";
+                    break;
+                case RtspStatusCode.RequestUriTooLarge:
+                    retval = "The server is refusing to service the request because the Request-URI is longer than the server is willing to interpret. The RTSP protocol does not place any limit on the length of a URI. Servers should be able to handle URIs of unbounded length.";
+                    break;
+                case RtspStatusCode.NotEnoughBandwidth:
+                    retval = "The request was refused because there is insufficient bandwidth on the in-home LAN. Returned when clients are requesting more streams than the network can carry.";
+                    break;
+                case RtspStatusCode.SessionNotFound:
+                    retval = "The RTSP session identifier value in the Session: header field of the request is missing, invalid, or has timed out. Returned when issuing the wrong session identifier value in a request.";
+                    break;
+                case RtspStatusCode.MethodNotValidInThisState:
+                    retval = "The client or server cannot process this request in its current state. Returned e.g. when trying to change transport parameters while the server is in the play state (e.g. change of port values, etc.).";
+                    break;
+                case RtspStatusCode.UnsupportedTransport:
+                    retval = "The Transport: header field of the request did not contain a supported transport specification. Returned e.g. when issuing a profile that is different from RTP/AVP.";
+                    break;
+                case RtspStatusCode.InternalServerError:
+                    retval = "The server encountered an error condition preventing it to fulfil the request. Returned when the server is not functioning correctly due to a hardware failure or a software bug or anything else that can go wrong.";
+                    break;
+                case RtspStatusCode.ServiceUnavailable:
+                    retval = "The server is currently unable to handle the request due to a temporary overloading or maintenance of the server. Returned when reaching the maximum number of hardware and software resources, the maximum number of sessions.";
+                    break;
+                case RtspStatusCode.RtspVersionNotSupported:
+                    retval = "The server does not support the RTSP protocol version that was used in the request message.";
+                    break;
+                case RtspStatusCode.OptionNotSupported:
+                    retval = "A feature-tag given in the Require: header field of the request was not supported. Issuing a request with a Require: header field.";
+                    break;
+            }
+            return retval;
         }
     }
     
