@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.30729</ProductVersion>
+    <ProductVersion>9.0.21022</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{08D59EC2-78F2-4C59-86A5-A2C4C77FBA15}</ProjectGuid>
     <OutputType>WinExe</OutputType>
@@ -656,7 +656,6 @@
     <Compile Include="Rtsp\RtspStatusCode.cs" />
     <Compile Include="SatIp\SatIpDevice.cs" />
     <Compile Include="Ssdp\SSDPClient.cs" />
-    <Compile Include="Dvb\Tables\Class1.cs" />
     <Compile Include="Dvb\Tables\ProgramAssociationTable.cs" />
     <Compile Include="Dvb\Tables\ProgramMapTable.cs" />
     <Compile Include="Dvb\Tables\ServiceDescriptionTable.cs" />

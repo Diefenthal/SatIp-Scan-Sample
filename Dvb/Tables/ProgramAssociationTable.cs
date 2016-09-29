@@ -20,7 +20,7 @@ namespace SatIp.Analyzer
         public int Length;
         public int TransportStreamID;
         public int VersionNumber;
-        public int CurrentNextIndicator;
+        public bool CurrentNextIndicator;
         public int SectionNumber;
         public int LastSectionNumber;
         public int ProgramCount;
@@ -44,7 +44,7 @@ namespace SatIp.Analyzer
             pat.Length = ((buffer[point + 2] & 15) * 0x100) + buffer[point + 3];
             pat.TransportStreamID = (buffer[point + 4] * 0x100) + buffer[point + 5];
             pat.VersionNumber = buffer[point + 8];
-            pat.CurrentNextIndicator = buffer[point + 5] & 1;
+            pat.CurrentNextIndicator = (buffer[point + 5] & 1) != 0;
             pat.LastSectionNumber = buffer[point + 8];
             pat.SectionNumber = buffer[point + 7];
             pat.ProgramCount = (int)Math.Round((double)(((double)(pat.Length - 9)) / 4.0));

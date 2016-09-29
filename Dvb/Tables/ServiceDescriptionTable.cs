@@ -35,9 +35,10 @@ namespace SatIp.Analyzer
         public int Length;
         public int TransportStreamId;
         public int VersionNumber;
-        public int CurrentNextIndicator;
+        public bool CurrentNextIndicator;
         public int SectionNumber;
         public int LastSectionNumber;
+        public ushort Reserved;
         public int OriginalNetworkId;
         List<ServiceDescription> Services;
 
@@ -53,14 +54,17 @@ namespace SatIp.Analyzer
             sdt.Length = ((buffer[point + 2] & 15) * 0x100) + buffer[point + 3];
             sdt.TransportStreamId = (buffer[point + 4] * 0x100) + buffer[point + 5];
             sdt.VersionNumber = buffer[point + 8];
-            sdt.CurrentNextIndicator = buffer[point + 5] & 1;
+            sdt.CurrentNextIndicator = (buffer[point + 5] & 1) != 0;
             sdt.LastSectionNumber = buffer[point + 8];
             sdt.SectionNumber = buffer[point + 7];
-            sdt.OriginalNetworkId = (buffer[point + 8] << 8) + buffer[point + 9];
+            sdt.OriginalNetworkId = (buffer[point + 9] << 8) + buffer[point + 10];
+            sdt.Reserved = buffer[point + 11];
             sdt.Services = new List<ServiceDescription>();
-            int offset = 12;
-            while (offset < sdt.Length - 1)
-            {
+            
+            int offset = point+11+1;
+            
+            while (offset < (sdt.Length-4))
+            {                
                 ServiceDescription servicedescription = new ServiceDescription();                
                 servicedescription.ServiceID = (ushort)((buffer[offset] << 8) + buffer[offset + 1]);
                 servicedescription.Reserved = (byte)(buffer[offset + 2] >> 2);
@@ -69,9 +73,9 @@ namespace SatIp.Analyzer
                 servicedescription.RunningStatus = (RunningStatus)((buffer[offset + 3] >> 5) & 0x07);
                 servicedescription.FreeCaMode = (((buffer[offset + 3] >> 4) & 0x01) != 0);
                 servicedescription.DescriptorsLoopLength = (ushort)(((buffer[offset + 3] & 0x0F) << 8) | buffer[offset + 4]);
-                //servicedescription.Descriptors = Descriptor.ParseDescriptors(buffer, offset + 5, servicedescription.DescriptorsLoopLength);                
+                servicedescription.Descriptors = Descriptor.ParseDescriptors(buffer, offset + 5, servicedescription.DescriptorsLoopLength);                
                 sdt.Services.Add(servicedescription);
-                offset += servicedescription.DescriptorsLoopLength + 5;
+                offset += servicedescription.DescriptorsLoopLength + 5;               
             }
             return sdt;
         }
@@ -97,10 +101,10 @@ namespace SatIp.Analyzer
                 sb.AppendFormat("RunningStatus : {0} \n", service.RunningStatus);
                 sb.AppendFormat("FreeCaMode : {0} \n", service.FreeCaMode);
                 sb.AppendFormat("DescriptorsLoopLength : {0} \n", service.DescriptorsLoopLength);
-                //foreach (var descriptor in service.Descriptors)
-                //{
-                //    sb.AppendFormat("Descriptors : {0} \n", descriptor.ToString());
-                //}
+                foreach (var descriptor in service.Descriptors)
+                {
+                    sb.AppendFormat("Descriptors : {0} \n", descriptor.ToString());
+                }
             }
             sb.AppendFormat(".\n");
             return sb.ToString();

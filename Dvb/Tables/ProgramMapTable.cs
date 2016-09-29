@@ -40,7 +40,7 @@ namespace SatIp.Analyzer
         public int Length;
         public int ProgramNumber;
         public int VersionNumber;
-        public int CurrentNextIndicator;
+        public bool CurrentNextIndicator;
         public int SectionNumber;
         public int LastSectionNumber;
         public byte Reserved3;
@@ -61,15 +61,15 @@ namespace SatIp.Analyzer
             pmt.Length = ((buffer[point + 2] & 15) * 0x100) + buffer[point + 3];
             pmt.ProgramNumber = (buffer[point + 4] * 0x100) + buffer[point + 5];
             pmt.VersionNumber = buffer[point + 8];
-            pmt.CurrentNextIndicator = buffer[point + 5] & 1;
+            pmt.CurrentNextIndicator = (buffer[point + 5] & 1)!=0;
             pmt.LastSectionNumber = buffer[point + 8];
             pmt.SectionNumber = buffer[point + 7];
             pmt.Reserved3 = (byte)(buffer[point + 8] >> 5);
-            pmt.PcrPID = (ushort)((buffer[point + 8] & 0x1F) << 8 | buffer[point + 9]);
-            pmt.Reserved4 = (byte)(buffer[point + 10] >> 4);
-            pmt.ProgramInfoLength = (byte)((buffer[point + 10] & 0x0F) << 8 | buffer[point + 11]);
+            pmt.PcrPID = (ushort)((buffer[point + 9] & 0x1F) << 8 | buffer[point + 10]);
+            pmt.Reserved4 = (byte)(buffer[point + 11] >> 4);
+            pmt.ProgramInfoLength = (byte)((buffer[point + 11] & 0x0F) << 8 | buffer[point + 12]);
             pmt.Streams = new ArrayList();
-            int offset = 13;
+            int offset = point+13;
             //if(ProgramInfoLength>0)
             //{
             //    Descriptors = Descriptor.ParseDescriptors(buffer, offset, ProgramInfoLength);
@@ -82,7 +82,7 @@ namespace SatIp.Analyzer
                 map.StreamType = (StreamType)buffer[offset];
                 map.ElementaryPID = (ushort)(((buffer[offset+1]&0x1F)<<8)+buffer[offset+2]);
                 map.ElementaryStreamInfoLength =(ushort)(((buffer[offset + 3] & 0x0F) << 8) + buffer[offset + 4]);
-                map.Descriptors = Descriptor.ParseDescriptors(buffer, offset + 5, map.ElementaryStreamInfoLength);
+                //map.Descriptors = Descriptor.ParseDescriptors(buffer, offset + 5, map.ElementaryStreamInfoLength);
                 pmt.Streams.Add(map);
             
                 offset += map.ElementaryStreamInfoLength + 5;

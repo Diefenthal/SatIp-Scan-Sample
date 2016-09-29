@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.columnHeader1 = new System.Windows.Forms.ColumnHeader();
+            this.colFrequency = new System.Windows.Forms.ColumnHeader();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.cbxSourceD = new System.Windows.Forms.ComboBox();
             this.cbxSourceC = new System.Windows.Forms.ComboBox();
@@ -63,6 +63,8 @@
             this.lblDeviceType = new System.Windows.Forms.Label();
             this.blUniqueDeviceName = new System.Windows.Forms.Label();
             this.lblFriendlyName = new System.Windows.Forms.Label();
+            this.colPID = new System.Windows.Forms.ColumnHeader();
+            this.colProgramNumber = new System.Windows.Forms.ColumnHeader();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
             this.groupBox1.SuspendLayout();
@@ -72,10 +74,10 @@
             ((System.ComponentModel.ISupportInitialize)(this.pbxManufactureBrand)).BeginInit();
             this.SuspendLayout();
             // 
-            // columnHeader1
+            // colFrequency
             // 
-            this.columnHeader1.Text = "Status";
-            this.columnHeader1.Width = 470;
+            this.colFrequency.Text = "Frequency";
+            this.colFrequency.Width = 100;
             // 
             // groupBox2
             // 
@@ -258,7 +260,9 @@
             // lwResults
             // 
             this.lwResults.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.columnHeader1});
+            this.colFrequency,
+            this.colPID,
+            this.colProgramNumber});
             this.lwResults.Location = new System.Drawing.Point(6, 93);
             this.lwResults.Name = "lwResults";
             this.lwResults.Size = new System.Drawing.Size(475, 193);
@@ -410,6 +414,14 @@
             this.lblFriendlyName.TabIndex = 18;
             this.lblFriendlyName.Text = "Friendly Name";
             // 
+            // colPID
+            // 
+            this.colPID.Text = "PID";
+            // 
+            // colProgramNumber
+            // 
+            this.colProgramNumber.Text = "ProgramNumber";
+            // 
             // Form2
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -438,7 +450,7 @@
         }
 
         #endregion
-        private System.Windows.Forms.ColumnHeader columnHeader1;
+        private System.Windows.Forms.ColumnHeader colFrequency;
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.ComboBox cbxSourceD;
         private System.Windows.Forms.ComboBox cbxSourceC;
@@ -473,5 +485,7 @@
         private System.Windows.Forms.Label lblDeviceType;
         private System.Windows.Forms.Label blUniqueDeviceName;
         private System.Windows.Forms.Label lblFriendlyName;
+        private System.Windows.Forms.ColumnHeader colPID;
+        private System.Windows.Forms.ColumnHeader colProgramNumber;
     }
 }

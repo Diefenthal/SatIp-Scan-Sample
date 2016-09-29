@@ -16,7 +16,8 @@ using SatIp.Scan.Properties;
 
 namespace SatIp
 {
-    
+    delegate void SetControlPropertyThreadSafeDelegate(Control control, string propertyName, object propertyValue);
+    delegate void AddResultDelegate(int frequency, int pid, int pgnr);
     public partial class Form2 : Form
     {
         private SatIpDevice _device;        
@@ -28,11 +29,10 @@ namespace SatIp
         private AutoResetEvent _scanThreadStopEvent = null;
         private Thread _scanThread;
         private Thread _keepAliveThread;
-        private AutoResetEvent _rtpThreadStopEvent = null;
-        private Thread _rtpThread;
+
         private IPEndPoint _remoteEndPoint;
         private UdpClient _udpclient;
-        BinaryWriter _binWriter;
+        
         public Form2(SatIpDevice device)
         {
             InitializeComponent();
@@ -92,15 +92,26 @@ namespace SatIp
             }
             base.ResumeLayout();
         }
-
         private void cbxDiseqC_SelectedIndexChanged(object sender, EventArgs e)
         {
             UpdateSatelliteSettings();
         }
-
-        private void Form2_Load(object sender, EventArgs e)
+        private void btnScan_Click(object sender, EventArgs e)
         {
-            
+            var ListA = (IniMapping)cbxSourceA.SelectedItem;
+            _file = ListA.File;
+            if (_isScanning == false)
+            {
+
+                StartScanThread();
+            }
+            else
+            {
+                _stopScanning = true;
+            }
+        }
+        private void Form2_Load(object sender, EventArgs e)
+        {            
             #region DVBSSources
 
             cbxDiseqC.Items.Add("None(Single Lnb)");
@@ -134,8 +145,13 @@ namespace SatIp
             UpdateSatelliteSettings(); 
             #endregion
         }
-
-        private delegate void SetControlPropertyThreadSafeDelegate(Control control, string propertyName, object propertyValue);
+        private void Form2_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (_device != null)
+            {
+                _device.Dispose();
+            }
+        }        
         private static void SetControlPropertyThreadSafe(Control control, string propertyName, object propertyValue)
         {
             if (control.InvokeRequired)
@@ -154,84 +170,10 @@ namespace SatIp
                     new object[] { propertyValue });
             }
         }
-       
-
-       
-        private void Scan(string tuning)
-        {
-            ProgramAssociationTable pat;
-            ProgramMapTable pmt;
-            Dictionary<int, ProgramMapTable> pmts = new Dictionary<int,ProgramMapTable>();
-            ServiceDescriptionTable sdt;
-
-            bool signalLocked;
-            int signallevel;
-            int signalQuality;
-            RtspStatusCode statuscode;
-            if (string.IsNullOrEmpty(_device.RtspSession.RtspSessionId))
-            {                
-                statuscode =_device.RtspSession.Setup(tuning, "unicast");
-                if (statuscode.Equals(RtspStatusCode.Ok))
-                {
-                    StartKeepAliveThread();
-
-                    _udpclient = new UdpClient(40000);
-                    _remoteEndPoint = new IPEndPoint(IPAddress.Any, 0);
-                }
-                else
-                {
-                    MessageBox.Show(String.Format("Setup retuns {0}", statuscode), "Failure", MessageBoxButtons.OK);
-                }
-            }
-            else
-            {
-                _device.RtspSession.Play(tuning);
-            }            
-            statuscode = _device.RtspSession.Describe(out signalLocked, out signallevel, out signalQuality);
-            if (!statuscode.Equals(RtspStatusCode.Ok))
-            {
-                MessageBox.Show(String.Format("Describe retuns {0}", statuscode), "Failure", MessageBoxButtons.OK);
-            }
-            SetControlPropertyThreadSafe(pgbSignalLevel, "Value", signallevel);
-            SetControlPropertyThreadSafe(pgbSignalQuality, "Value", signalQuality);                        
-            if (signalLocked)
-            {               
-                //Say the Sat>IP server we want Receives the ProgramAssociationTable
-                _device.RtspSession.Play("addpids=0");
-                GetPAT(_udpclient, _remoteEndPoint, out pat);
-                Console.Write(pat.ToString());
-                //Say the Sat>IP server we want not more Receives the ProgramAssociationTable
-                _device.RtspSession.Play(string.Format("delpids=0"));
-                //// Loop the ProgramAssociationTable Programs
-                foreach (var program in pat.Programs)
-                {
-                    //Say the Sat>IP server we want Receives the ProgramMapTable for Pid x                            
-                    _device.RtspSession.Play(string.Format("addpids={0}", program.Pid));
-                    GetPMT(_udpclient, _remoteEndPoint, program.Pid, out pmt);
-                    Console.Write(pmt.ToString());
-                    // Add the ProgramMapTable for Pid x into the Dictionary
-                    pmts.Add(pmt.ProgramNumber, pmt);
-                    // Say the Sat>IP server we want not more Receives the ProgramMapTable for Pid x
-                    _device.RtspSession.Play(string.Format("delpids={0}", program.Pid));
-                }                    
-                // Say the Sat>IP server we want Receives the ServiceDescriptionTable 
-                _device.RtspSession.Play("addpids=17");
-                GetSDT(_udpclient, _remoteEndPoint, out sdt);                
-                Console.Write(sdt.ToString());
-                // Say the Sat>IP server we want not more Receives the ServiceDescriptionTable
-                _device.RtspSession.Play(string.Format("delpids=17"));
-                
-                    
-                
-                // Now we had we all to create an service 
-            }
-        }
-
         private bool GetPAT(UdpClient client, IPEndPoint endpoint, out ProgramAssociationTable programAssociationTable)
         {
-            ProgramAssociationTable pat = new ProgramAssociationTable();
-            int currentVersion = -1;
-            int nextSectionNumber = 0;
+            //client.Client.ReceiveTimeout = 5000;
+            ProgramAssociationTable pat = new ProgramAssociationTable();            
             bool retval = false;
             while (!retval)
             {
@@ -249,14 +191,11 @@ namespace SatIp
                             var tsheader = TsHeader.Decode(destinationarray);
                             //Decode the Table 
                             pat = ProgramAssociationTable.Decode(tsheader.PayloadUnitStartIndicator, tsheader.PayLoadStart, destinationarray);
-                            //nextSectionNumber++;
-                            //if (nextSectionNumber >= pat.LastSectionNumber)
-                            //{
-                                programAssociationTable = pat;                                
-                                retval= true;
-                            //}
-                            //programAssociationTable = null;
-                            //retval = false;
+                            if(pat.CurrentNextIndicator)
+                            {
+                                programAssociationTable = pat;
+                                retval = pat.CurrentNextIndicator;
+                            }                            
                         }
                     }
                 }                
@@ -267,12 +206,13 @@ namespace SatIp
         private bool GetPMT(UdpClient client, IPEndPoint endpoint, int pid,out ProgramMapTable programMapTable)
         {            
             ProgramMapTable pmt = new ProgramMapTable();
-            int currentVersion = -1;
-            int nextSectionNumber = 0;
+            
             bool retval = false;
             while (!retval)
             {
                 var receivedbytes = client.Receive(ref endpoint);
+                RtpHeader h = new RtpHeader(receivedbytes);
+                //Console.Write(h.ToString());
                 if ((receivedbytes.Length > 12) && ((receivedbytes.Length - 12) % 188) == 0)
                 {
                     double num9 = (((double)(receivedbytes.Length - 12)) / 188.0) - 1.0;
@@ -286,19 +226,15 @@ namespace SatIp
                             var tstheader = TsHeader.Decode(destinationarray);
                             //Decode the Table                            
                             pmt = ProgramMapTable.Decode(tstheader.PayloadUnitStartIndicator, tstheader.PayLoadStart, destinationarray);
-                            nextSectionNumber++;
-                            if (nextSectionNumber >= pmt.LastSectionNumber)
+                            if (pmt.CurrentNextIndicator)
                             {
                                 programMapTable = pmt;
-                                retval= true;
-                            }
-                            //programMapTable = null;
-                            //retval = false;
+                                retval = pmt.CurrentNextIndicator;
+                            }                            
                         }
                     }
                 }
-                //programMapTable = null;
-                //retval= false;
+                
             }
             programMapTable = pmt;
             return retval;
@@ -306,12 +242,13 @@ namespace SatIp
         private bool GetSDT(UdpClient client, IPEndPoint endpoint,out ServiceDescriptionTable serviceDescriptionTable)
         {
             ServiceDescriptionTable sdt = new ServiceDescriptionTable();
-            int currentVersion = -1;
-            int nextSectionNumber = 0;
+            
             bool retval = false;
             while (!retval)
             {                
                 var receivedbytes = client.Receive(ref endpoint);
+                RtpHeader h = new RtpHeader(receivedbytes);
+                //Console.Write(h.ToString());
                 if ((receivedbytes.Length > 12) && ((receivedbytes.Length - 12) % 188) == 0)
                 {
                     double num9 = (((double)(receivedbytes.Length - 12)) / 188.0) - 1.0;
@@ -325,31 +262,18 @@ namespace SatIp
                             var tsheader = TsHeader.Decode(destinationarray);
                             //Decode the Table                        
                             sdt = ServiceDescriptionTable.Decode(tsheader.PayloadUnitStartIndicator, tsheader.PayLoadStart, destinationarray);
-                            //nextSectionNumber++;
-                            //if (nextSectionNumber >= sdt.LastSectionNumber)
-                            //{
+                            if (sdt.CurrentNextIndicator)
+                            {
                                 serviceDescriptionTable = sdt;
-                                retval = true;
-                            //}
-                            //serviceDescriptionTable = null;
-                            //retval = false; 
+                                retval = sdt.CurrentNextIndicator;
+                            }                            
                         }
                     }
-                }
-                //serviceDescriptionTable = null;
-                //retval = false;
+                }                
             }
             serviceDescriptionTable = sdt;
             return retval;
-        }
-        private void Form2_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            if(_device!= null)
-            {
-                _device.Dispose();
-            }
-        }
-
+        }        
         private void StartKeepAliveThread()
         {            
             if (_keepAliveThread != null && !_keepAliveThread.IsAlive)
@@ -372,16 +296,14 @@ namespace SatIp
             if (_keepAliveThread != null)
             {
                 if (!_keepAliveThread.IsAlive)
-                {
-                    //this.LogWarn("SAT>IP base: aborting old streaming keep-alive thread");
+                {                    
                     _keepAliveThread.Abort();
                 }
                 else
                 {
                     _keepAliveThreadStopEvent.Set();
                     if (!_keepAliveThread.Join(_device.RtspSession.RtspSessionTimeToLive))
-                    {
-                        //this.LogWarn("SAT>IP base: failed to join streaming keep-alive thread, aborting thread");
+                    {                        
                         _keepAliveThread.Abort();
                     }
                 }
@@ -406,28 +328,24 @@ namespace SatIp
             {
             }
             catch (Exception ex)
-            {
-                //this.LogError(ex, "SAT>IP base: streaming keep-alive thread exception");
+            {                
                 return;
-            }
-            //this.LogDebug("SAT>IP base: streaming keep-alive thread stopping");
+            }            
         }
         private void StartScanThread()
-        {
-            // Kill the existing thread if it is in "zombie" state.
+        {            
             if (_scanThread != null && !_scanThread.IsAlive)
             {
                 StopScanThread();
             }
 
             if (_scanThread == null)
-            {
-                //this.LogDebug("SAT>IP base: starting new streaming keep-alive thread");
+            {                
                 _scanThreadStopEvent = new AutoResetEvent(false);
                 _scanThread = new Thread(new ThreadStart(DoScan));
                 _scanThread.Name = "SAT>IP Scan";
                 _scanThread.IsBackground = true;
-                _scanThread.Priority = ThreadPriority.Normal;
+                _scanThread.Priority = ThreadPriority.Highest;
                 _scanThread.Start();
             }
         }
@@ -436,8 +354,7 @@ namespace SatIp
             if (_scanThread != null)
             {
                 if (!_scanThread.IsAlive)
-                {
-                    //this.LogWarn("SAT>IP base: aborting old streaming keep-alive thread");
+                {                    
                     _scanThread.Abort();
                 }
                 else
@@ -454,6 +371,7 @@ namespace SatIp
         }
         private void DoScan()
         {
+            Dictionary<int, ProgramMapTable> pmts = new Dictionary<int, ProgramMapTable>();            
             _isScanning = true;
             _stopScanning = false;
             SetControlPropertyThreadSafe(btnScan, "Text", "Stop Search");
@@ -481,16 +399,95 @@ namespace SatIp
                     {
                         tuning = string.Format("src={0}&freq={1}&pol={2}&sr={3}&fec={4}&msys=dvbs&mtype={5}&pids=0", source, strArray[0].ToString(), strArray[1].ToLower().ToString(), strArray[2].ToString(), strArray[3].ToString(), strArray[5].ToLower().ToString());
                     }
-                    Scan(tuning);
-                    //Thread.Sleep(1000);
-                    Index++;
-                    //ListViewItem item = lwResults.Items.Add(new ListViewItem(strArray[0].ToString()));
-                    //item.EnsureVisible();                    
-                }
-                //lwResults.Items.Add(new ListViewItem(String.Format("Total radio channels new:{0} updated:{1}", 1, 1)));
-                //lwResults.Items.Add(new ListViewItem(String.Format("Total tv channels new:{0} updated:{1}", 1, 1)));
-                //ListViewItem itm = lwResults.Items.Add(new ListViewItem("Scan done..."));
-                //itm.EnsureVisible();
+                    bool signalLocked;
+                    int signallevel;
+                    int signalQuality;
+                    RtspStatusCode statuscode;
+                    if (string.IsNullOrEmpty(_device.RtspSession.RtspSessionId))
+                    {
+                        statuscode = _device.RtspSession.Setup(tuning, "unicast");
+                        if (statuscode.Equals(RtspStatusCode.Ok))
+                        {
+                            StartKeepAliveThread();
+                            _udpclient = new UdpClient(_device.RtspSession.ClientRtpPort);
+                            _remoteEndPoint = new IPEndPoint(IPAddress.Any, 0);
+                        }
+                        else
+                        {
+                            MessageBox.Show(String.Format("Setup retuns {0}", statuscode), "Failure", MessageBoxButtons.OK);
+                        }
+                    }
+                    else
+                    {
+                        _device.RtspSession.Play(tuning);
+                    }
+                    /* Say the Sat>IP server we want Receives the ProgramAssociationTable */
+                    _device.RtspSession.Play("&addpids=0");
+                    statuscode = _device.RtspSession.Describe(out signalLocked, out signallevel, out signalQuality);
+                    if (!statuscode.Equals(RtspStatusCode.Ok))
+                    {
+                        MessageBox.Show(String.Format("Describe retuns {0}", statuscode), "Failure", MessageBoxButtons.OK);
+                    }
+                    SetControlPropertyThreadSafe(pgbSignalLevel, "Value", signallevel);
+                    SetControlPropertyThreadSafe(pgbSignalQuality, "Value", signalQuality);
+                    if (signalLocked)
+                    {
+                        ///* Say the Sat>IP server we want Receives the ProgramAssociationTable */
+                        //_device.RtspSession.Play("&addpids=0");
+                        ProgramAssociationTable pat = null;
+                        GetPAT(_udpclient, _remoteEndPoint, out pat);
+                        /* Say the Sat>IP server we want not more Receives the ProgramAssociationTable */
+                        _device.RtspSession.Play("&delpids=0");
+                        /* Loop the ProgramAssociationTable Programs */
+                        //foreach (var program in pat.Programs)
+                        //{
+                            /* Say the Sat>IP server we want Receives the ProgramMapTable for Pid x */
+                            //_device.RtspSession.Play(string.Format("&addpids={0}", program.Pid));
+                            //ProgramMapTable pmt = null;
+                            //GetPMT(_udpclient, _remoteEndPoint, program.Pid, out pmt);
+                            /* Add the ProgramMapTable for Pid x into the Dictionary */
+                            //pmts.Add(pmt.ProgramNumber, pmt);
+                            /* Say the Sat>IP server we want not more Receives the ProgramMapTable for Pid x */
+                            //_device.RtspSession.Play(string.Format("&delpids={0}", program.Pid));
+                        //}                    
+                        /* Say the Sat>IP server we want Receives the ServiceDescriptionTable */
+                        //_device.RtspSession.Play("&addpids=17");
+                        //ServiceDescriptionTable sdt =null;
+                        //GetSDT(_udpclient, _remoteEndPoint, out sdt);
+                        /* Say the Sat>IP server we want not more Receives the ServiceDescriptionTable */
+                        //_device.RtspSession.Play(string.Format("&delpids=17"));
+
+                        /* 
+                         * From the ServiceDescriptionTable get we the
+                         * Service ID                         
+                         * ServiceName
+                         * ServiceType
+                         * ServiceProvider
+                         * If the Service is Scrambled or Not
+                         */ 
+
+                        /* From ProgramMapTable get we 
+                         * ProgramClockReference (PCRPID)
+                         * Video PID
+                         * one or more Audio PIDS
+                         * Teletext PID
+                         * SubTitle PID
+                         */
+
+                        /* The Service Object should contain follow fields
+                         * Tuning Informations see Sat>Ip Specification 
+                         * all ServiceDescription Fields 
+                         * all ProgramMapTable Fields                        
+                         */
+
+                        /* add something to the Listview To inform the User what is found  */
+                        foreach (var p in pat.Programs)
+                            AddResults(int.Parse(strArray[0]), p.Pid, p.Number);
+                       
+                    }
+                    Thread.Sleep(100);
+                    Index++;                                       
+                }                
             }
             catch
             {
@@ -507,96 +504,26 @@ namespace SatIp
                 StopScanThread();
             }
         }
-        private void StartRtpThread()
+        
+        private void AddResults(int frequency,int pid ,int pgnr)
         {
-            
-            _binWriter = new BinaryWriter(new MemoryStream());
-            // Kill the existing thread if it is in "zombie" state.
-            if (_rtpThread != null && !_rtpThread.IsAlive)
+            if (lwResults.InvokeRequired)
             {
-                StopRtpThread();
-            }
-
-            if (_rtpThread == null)
-            {
-                //this.LogDebug("SAT>IP base: starting new streaming keep-alive thread");
-                _rtpThreadStopEvent = new AutoResetEvent(false);
-                _rtpThread = new Thread(new ThreadStart(DoRtp));
-                _rtpThread.Name = "SAT>IP RTP";
-                _rtpThread.IsBackground = true;
-                _rtpThread.Priority = ThreadPriority.Lowest;
-                _rtpThread.Start();
-            }
-        }
-        private void StopRtpThread()
-        {
-            if (_rtpThread != null)
-            {
-                if (!_rtpThread.IsAlive)
-                {
-                    //this.LogWarn("SAT>IP base: aborting old streaming keep-alive thread");
-                    _rtpThread.Abort();
-                }
-                else
-                {
-                    _rtpThreadStopEvent.Set();
-                }
-                _rtpThread = null;
-                if (_rtpThreadStopEvent != null)
-                {
-                    _rtpThreadStopEvent.Close();
-                    _rtpThreadStopEvent = null;
-                }
-            }
-        }
-        private void DoRtp()
-        {
-            
-            try
-            {
-                while (!_rtpThreadStopEvent.WaitOne(1))
-                {
-                    byte[] receivedbytes = _udpclient.Receive(ref _remoteEndPoint);
-                    //var packet = RtpHeader.Decode(receivedbytes);                    
-                    //Console.Write(packet.ToString() + "\r\n");
-                    if ((receivedbytes.Length > 12) && ((receivedbytes.Length - 12) % 188) == 0)
-                    {
-                        double num9 = (((double)(receivedbytes.Length - 12)) / 188.0) - 1.0;
-                        for (double j = 0.0; j <= num9; j++)
-                        {
-                            byte[] destinationarray = (byte[])Array.CreateInstance(typeof(byte), 188);
-                            Array.Copy(receivedbytes, (int)Math.Round((double)(12.0 + (j * 188))), destinationarray, 0, 188);
-                            if ((destinationarray[0] == 0x47 && destinationarray.Length >= 188))
-                            {
-                                _binWriter.Write(destinationarray);
-                            }
-                        }
-                    }
-                    //_receivedBytes += packets.Length;
-                    //_receivedPackets++;
-                }
-            }
-            finally
-            {
-                _udpclient.Close();
-            }
-
-            
-        }
-
-        private void btnScan_Click(object sender, EventArgs e)
-        {
-            var ListA = (IniMapping)cbxSourceA.SelectedItem;
-            _file = ListA.File;
-            if (_isScanning == false)
-            {
-
-                StartScanThread();
+                lwResults.Invoke(new AddResultDelegate(AddResults), new object[] { frequency,pid ,pgnr });
             }
             else
             {
-                _stopScanning = true;
+                string[] items = new string[]
+                    {
+                        frequency.ToString(),
+                        pid.ToString(),
+                        pgnr.ToString()
+                    };
+                ListViewItem lstItem = new ListViewItem(items);
+                lstItem.Checked = true;
+                lwResults.Items.Add(lstItem);
             }
+
         }
     }
     
