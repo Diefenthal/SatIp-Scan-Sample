@@ -295,7 +295,7 @@
             // 
             // pbxDVBC
             // 
-            this.pbxDVBC.Image = global::SatIp.Scan.Properties.Resources.dvb_c;
+            this.pbxDVBC.Image = global::SatIp.Properties.Resources.dvb_c;
             this.pbxDVBC.InitialImage = null;
             this.pbxDVBC.Location = new System.Drawing.Point(117, 145);
             this.pbxDVBC.Name = "pbxDVBC";
@@ -306,7 +306,7 @@
             // 
             // pbxDVBS
             // 
-            this.pbxDVBS.Image = global::SatIp.Scan.Properties.Resources.dvb_s;
+            this.pbxDVBS.Image = global::SatIp.Properties.Resources.dvb_s;
             this.pbxDVBS.InitialImage = null;
             this.pbxDVBS.Location = new System.Drawing.Point(194, 145);
             this.pbxDVBS.Name = "pbxDVBS";
@@ -317,7 +317,7 @@
             // 
             // pbxDVBT
             // 
-            this.pbxDVBT.Image = global::SatIp.Scan.Properties.Resources.dvb_t;
+            this.pbxDVBT.Image = global::SatIp.Properties.Resources.dvb_t;
             this.pbxDVBT.InitialImage = null;
             this.pbxDVBT.Location = new System.Drawing.Point(271, 145);
             this.pbxDVBT.Name = "pbxDVBT";

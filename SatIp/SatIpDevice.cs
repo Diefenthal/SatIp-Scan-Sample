@@ -16,14 +16,11 @@
 */
 
 using System;
+using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Xml;
 using System.Xml.Linq;
-using System.ComponentModel;
-using SatIp.Scan.SatIp;
-using System.Collections;
-using System.Collections.Generic;
 
 namespace SatIp
 {

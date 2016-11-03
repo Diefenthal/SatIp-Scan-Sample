@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -8,10 +8,15 @@
     <ProjectGuid>{08D59EC2-78F2-4C59-86A5-A2C4C77FBA15}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>SatIp.Scan</RootNamespace>
+    <RootNamespace>SatIp</RootNamespace>
     <AssemblyName>SatIp.Scan</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <OldToolsVersion>3.5</OldToolsVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -31,6 +36,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="DirectShowLib-2005">
+      <HintPath>..\..\..\Downloads\DirectShowLib-2005.dll</HintPath>
+    </Reference>
     <Reference Include="log4net, Version=1.2.10.0, Culture=neutral, PublicKeyToken=1b44e1d426115821, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>E:\SatIp v3\SatIp.Scan\bin\Release\log4net.dll</HintPath>
@@ -52,44 +60,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Dvb\Descriptors\AACDescriptor.cs" />
-    <Compile Include="Dvb\Descriptors\AC3Descriptor.cs" />
-    <Compile Include="Dvb\Descriptors\AdaptationFieldDataDescriptor.cs" />
-    <Compile Include="Dvb\Descriptors\AncillaryDataDescriptor.cs" />
-    <Compile Include="Dvb\Descriptors\AnnouncementSupportDescriptor.cs" />
-    <Compile Include="Dvb\Descriptors\ApplicationSignallingDescriptor.cs" />
-    <Compile Include="Dvb\Descriptors\CAIdentifierDescriptor.cs" />
-    <Compile Include="Dvb\Descriptors\ComponentDescriptor.cs" />
-    <Compile Include="Dvb\Descriptors\CountryAvailabilityDescriptor.cs" />
-    <Compile Include="Dvb\Descriptors\DataBroadcastDescriptor.cs" />
-    <Compile Include="Dvb\Descriptors\DataBroadcastIdDescriptor.cs" />
-    <Compile Include="Dvb\Descriptors\DefaultAuthorityDescriptor.cs" />
-    <Compile Include="Dvb\Descriptors\Descriptor.cs" />
-    <Compile Include="Dvb\Descriptors\DTSDescriptor.cs" />
-    <Compile Include="Dvb\Descriptors\ECMRepetitionRateDescriptor.cs" />
-    <Compile Include="Dvb\Descriptors\EnhancedAC3Descriptor.cs" />
-    <Compile Include="Dvb\Descriptors\ExtensionDescriptor.cs" />
-    <Compile Include="Dvb\Descriptors\FTAContentManagementDescriptor.cs" />
-    <Compile Include="Dvb\Descriptors\LinkageDescriptor.cs" />
-    <Compile Include="Dvb\Descriptors\MosaicDescriptor.cs" />
-    <Compile Include="Dvb\Descriptors\MultilingualServiceNameDescriptor.cs" />
-    <Compile Include="Dvb\Descriptors\NVODReferenceDescriptor.cs" />
-    <Compile Include="Dvb\Descriptors\PrivateDataSpecifierDescriptor.cs" />
-    <Compile Include="Dvb\Descriptors\RelatedContentDescriptor.cs" />
-    <Compile Include="Dvb\Descriptors\ScramblingDescriptor.cs" />
-    <Compile Include="Dvb\Descriptors\ServiceAvailabilityDescriptor.cs" />
-    <Compile Include="Dvb\Descriptors\ServiceDescriptor.cs" />
-    <Compile Include="Dvb\Descriptors\ServiceIdentifierDescriptor.cs" />
-    <Compile Include="Dvb\Descriptors\ServiceMoveDescriptor.cs" />
-    <Compile Include="Dvb\Descriptors\StreamIndentifierDescriptor.cs" />
-    <Compile Include="Dvb\Descriptors\StuffingDescriptor.cs" />
-    <Compile Include="Dvb\Descriptors\SubtitlingDescriptor.cs" />
-    <Compile Include="Dvb\Descriptors\TelephoneDescriptor.cs" />
-    <Compile Include="Dvb\Descriptors\TeletextDescriptor.cs" />
-    <Compile Include="Dvb\Descriptors\TimeshiftedServiceDescriptor.cs" />
-    <Compile Include="Dvb\Descriptors\VBIDataDescriptor.cs" />
-    <Compile Include="Dvb\Descriptors\VBITeletextDescriptor.cs" />
-    <Compile Include="Dvb\Descriptors\XAITLocationDescriptor.cs" />
     <Compile Include="Devices.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -102,6 +72,18 @@
     <Compile Include="Form2.Designer.cs">
       <DependentUpon>Form2.cs</DependentUpon>
     </Compile>
+    <Compile Include="Rtcp\ReportBlock.cs" />
+    <Compile Include="Rtcp\RtcpAppPacket.cs" />
+    <Compile Include="Rtcp\RtcpByePacket.cs" />
+    <Compile Include="Rtcp\RtcpListener.cs" />
+    <Compile Include="Rtcp\RtcpPacket.cs" />
+    <Compile Include="Rtcp\RtcpReceiverReportPacket.cs" />
+    <Compile Include="Rtcp\RtcpSenderReportPacket.cs" />
+    <Compile Include="Rtcp\RtcpSourceDescriptionPacket.cs" />
+    <Compile Include="Rtcp\SourceDescriptionBlock.cs" />
+    <Compile Include="Rtcp\SourceDescriptionItem.cs" />
+    <Compile Include="Rtp\RtpListener.cs" />
+    <Compile Include="Rtp\RtpPacket.cs" />
     <Compile Include="SatIp\CableTuner.cs" />
     <Compile Include="SatIp\SatelliteTuner.cs" />
     <Compile Include="SatIp\TerrestrialTuner.cs" />
@@ -113,6 +95,15 @@
     <Compile Include="Logging\Logger.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TransmissionMode.cs" />
+    <Compile Include="Ts\NITParser.cs" />
+    <Compile Include="Ts\PATParser.cs" />
+    <Compile Include="Ts\PMTParser.cs" />
+    <Compile Include="Ts\SDTParser.cs" />
+    <Compile Include="Ts\TsHeader.cs" />
+    <Compile Include="Ts\TsSection.cs" />
+    <Compile Include="Ts\TsSectionDecoder.cs" />
+    <Compile Include="Utils.cs" />
     <EmbeddedResource Include="Devices.resx">
       <DependentUpon>Devices.cs</DependentUpon>
       <SubType>Designer</SubType>
@@ -648,7 +639,6 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="RtpHeader.cs" />
     <Compile Include="Rtsp\RtspMethod.cs" />
     <Compile Include="Rtsp\RtspRequest.cs" />
     <Compile Include="Rtsp\RtspResponse.cs" />
@@ -656,10 +646,6 @@
     <Compile Include="Rtsp\RtspStatusCode.cs" />
     <Compile Include="SatIp\SatIpDevice.cs" />
     <Compile Include="Ssdp\SSDPClient.cs" />
-    <Compile Include="Dvb\Tables\ProgramAssociationTable.cs" />
-    <Compile Include="Dvb\Tables\ProgramMapTable.cs" />
-    <Compile Include="Dvb\Tables\ServiceDescriptionTable.cs" />
-    <Compile Include="Dvb\TsHeader.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\dvb-t.png" />

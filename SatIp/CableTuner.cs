@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace SatIp.Scan.SatIp
+namespace SatIp
 {
     public class CableTuner : Tuner
     {
