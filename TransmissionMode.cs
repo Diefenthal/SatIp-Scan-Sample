@@ -17,18 +17,9 @@
 
 namespace SatIp
 {
-    public class Icon
+    public enum TransmissionMode
     {
-        public Icon()
-        {
-            Url = "";
-            MimeType = "";
-        }
-
-        public int Depth { get; set; }
-        public int Height { get; set; }
-        public int Width { get; set; }
-        public string MimeType { get; set; }
-        public string Url { get; set; }
+        Unicast,
+        Multicast
     }
 }

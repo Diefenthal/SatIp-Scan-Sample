@@ -1,29 +1,26 @@
 ﻿/*  
     Copyright (C) <2007-2016>  <Kay Diefenthal>
 
-    SatIp.DiscoverySample is free software: you can redistribute it and/or modify
+    SatIp is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    SatIp.DiscoverySample is distributed in the hope that it will be useful,
+    SatIp is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with SatIp.DiscoverySample.  If not, see <http://www.gnu.org/licenses/>.
+    along with SatIp.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 using System;
+using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Xml;
 using System.Xml.Linq;
-using System.ComponentModel;
-using SatIp.Scan.SatIp;
-using System.Collections;
-using System.Collections.Generic;
 
 namespace SatIp
 {

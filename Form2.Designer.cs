@@ -1,4 +1,20 @@
-﻿namespace SatIp
+﻿/*  
+    Copyright (C) <2007-2016>  <Kay Diefenthal>
+
+    SatIp is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    SatIp is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with SatIp.  If not, see <http://www.gnu.org/licenses/>.
+*/
+namespace SatIp
 {
     partial class Form2
     {
@@ -28,7 +44,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.colFrequency = new System.Windows.Forms.ColumnHeader();
+            this.colFrequency = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.cbxSourceD = new System.Windows.Forms.ComboBox();
             this.cbxSourceC = new System.Windows.Forms.ComboBox();
@@ -48,6 +64,8 @@
             this.pgbSignalQuality = new System.Windows.Forms.ProgressBar();
             this.pgbSearchResult = new System.Windows.Forms.ProgressBar();
             this.lwResults = new System.Windows.Forms.ListView();
+            this.colServiceType = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.colServiceName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.pbxDVBC = new System.Windows.Forms.PictureBox();
             this.pbxDVBS = new System.Windows.Forms.PictureBox();
@@ -63,8 +81,8 @@
             this.lblDeviceType = new System.Windows.Forms.Label();
             this.blUniqueDeviceName = new System.Windows.Forms.Label();
             this.lblFriendlyName = new System.Windows.Forms.Label();
-            this.colPID = new System.Windows.Forms.ColumnHeader();
-            this.colProgramNumber = new System.Windows.Forms.ColumnHeader();
+            this.colServiceProvider = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.colServiceId = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
             this.groupBox1.SuspendLayout();
@@ -261,14 +279,26 @@
             // 
             this.lwResults.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.colFrequency,
-            this.colPID,
-            this.colProgramNumber});
+            this.colServiceType,
+            this.colServiceName,
+            this.colServiceProvider,
+            this.colServiceId});
             this.lwResults.Location = new System.Drawing.Point(6, 93);
             this.lwResults.Name = "lwResults";
             this.lwResults.Size = new System.Drawing.Size(475, 193);
             this.lwResults.TabIndex = 0;
             this.lwResults.UseCompatibleStateImageBehavior = false;
             this.lwResults.View = System.Windows.Forms.View.Details;
+            // 
+            // colServiceType
+            // 
+            this.colServiceType.Text = "ServiceType";
+            this.colServiceType.Width = 100;
+            // 
+            // colServiceName
+            // 
+            this.colServiceName.Text = "ServiceName";
+            this.colServiceName.Width = 100;
             // 
             // groupBox1
             // 
@@ -295,7 +325,7 @@
             // 
             // pbxDVBC
             // 
-            this.pbxDVBC.Image = global::SatIp.Scan.Properties.Resources.dvb_c;
+            this.pbxDVBC.Image = global::SatIp.Properties.Resources.dvb_c;
             this.pbxDVBC.InitialImage = null;
             this.pbxDVBC.Location = new System.Drawing.Point(117, 145);
             this.pbxDVBC.Name = "pbxDVBC";
@@ -306,7 +336,7 @@
             // 
             // pbxDVBS
             // 
-            this.pbxDVBS.Image = global::SatIp.Scan.Properties.Resources.dvb_s;
+            this.pbxDVBS.Image = global::SatIp.Properties.Resources.dvb_s;
             this.pbxDVBS.InitialImage = null;
             this.pbxDVBS.Location = new System.Drawing.Point(194, 145);
             this.pbxDVBS.Name = "pbxDVBS";
@@ -317,7 +347,7 @@
             // 
             // pbxDVBT
             // 
-            this.pbxDVBT.Image = global::SatIp.Scan.Properties.Resources.dvb_t;
+            this.pbxDVBT.Image = global::SatIp.Properties.Resources.dvb_t;
             this.pbxDVBT.InitialImage = null;
             this.pbxDVBT.Location = new System.Drawing.Point(271, 145);
             this.pbxDVBT.Name = "pbxDVBT";
@@ -414,13 +444,14 @@
             this.lblFriendlyName.TabIndex = 18;
             this.lblFriendlyName.Text = "Friendly Name";
             // 
-            // colPID
+            // colServiceProvider
             // 
-            this.colPID.Text = "PID";
+            this.colServiceProvider.Text = "ServiceProvider";
+            this.colServiceProvider.Width = 100;
             // 
-            // colProgramNumber
+            // colServiceId
             // 
-            this.colProgramNumber.Text = "ProgramNumber";
+            this.colServiceId.Text = "ServiceId";
             // 
             // Form2
             // 
@@ -433,8 +464,8 @@
             this.Controls.Add(this.groupBox2);
             this.Name = "Form2";
             this.Text = "Form2";
-            this.Load += new System.EventHandler(this.Form2_Load);
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form2_FormClosing);
+            this.Load += new System.EventHandler(this.Form2_Load);
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
             this.groupBox3.ResumeLayout(false);
@@ -485,7 +516,9 @@
         private System.Windows.Forms.Label lblDeviceType;
         private System.Windows.Forms.Label blUniqueDeviceName;
         private System.Windows.Forms.Label lblFriendlyName;
-        private System.Windows.Forms.ColumnHeader colPID;
-        private System.Windows.Forms.ColumnHeader colProgramNumber;
+        private System.Windows.Forms.ColumnHeader colServiceType;
+        private System.Windows.Forms.ColumnHeader colServiceName;
+        private System.Windows.Forms.ColumnHeader colServiceProvider;
+        private System.Windows.Forms.ColumnHeader colServiceId;
     }
 }
