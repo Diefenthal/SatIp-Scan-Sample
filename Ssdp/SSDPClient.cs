@@ -1,5 +1,5 @@
 ﻿/*  
-    Copyright (C) <2007-2016>  <Kay Diefenthal>
+    Copyright (C) <2007-2017>  <Kay Diefenthal>
 
     SatIp is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -18,7 +18,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -243,7 +242,7 @@ namespace SatIp
         public static Dictionary<string, string> Parse(string searchResponse)
         {
             var reader = new StringReader(searchResponse);
-            var line = reader.ReadLine();
+            var line = string.Empty;
             var values = new Dictionary<string, string>();
             while ((line = reader.ReadLine()) != null)
             {
