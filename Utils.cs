@@ -15,12 +15,84 @@
     along with SatIp.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
+using System.Collections.Generic;
 using System.Text;
 
 namespace SatIp
 {
     public class Utils
     {
+        public static int ConvertBCDToInt(byte[] byteData, int index, int count)
+        {
+            int result = 0;
+            int shift = 4;
+
+            for (int nibbleIndex = 0; nibbleIndex < count; nibbleIndex++)
+            {
+                result = (result * 10) + ((byteData[index] >> shift) & 0x0f);
+
+                if (shift == 4)
+                    shift = 0;
+                else
+                {
+                    shift = 4;
+                    index++;
+                }
+            }
+
+            return (result);
+        }
+        public static string ReadString(byte[] data, int offset, int length)
+        {
+            string encoding = "utf-8"; // Standard latin alphabet
+            List<byte> bytes = new List<byte>();
+            for (int i = 0; i < length; i++)
+            {
+                byte character = data[offset + i];
+                bool notACharacter = false;
+                if (i == 0)
+                {
+                    if (character < 0x20)
+                    {
+                        switch (character)
+                        {
+                            case 0x00:
+                                break;
+                            case 0x01:
+                                encoding = "iso-8859-5";
+                                break;
+                            case 0x02:
+                                encoding = "iso-8859-6";
+                                break;
+                            case 0x03:
+                                encoding = "iso-8859-7";
+                                break;
+                            case 0x04:
+                                encoding = "iso-8859-8";
+                                break;
+                            case 0x05:
+                                encoding = "iso-8859-9";
+                                break;
+                            default:
+                                break;
+                        }
+                        notACharacter = true;
+                    }
+                }
+                if (character < 0x20 || (character >= 0x80 && character <= 0x9F))
+                {
+                    notACharacter = true;
+                }
+                if (!notACharacter)
+                {
+                    bytes.Add(character);
+                }
+            }
+            Encoding enc = Encoding.GetEncoding(encoding);
+            ASCIIEncoding destEnc = new ASCIIEncoding();
+            byte[] destBytes = Encoding.Convert(enc, destEnc, bytes.ToArray());
+            return destEnc.GetString(destBytes);
+        }
         //public static List<Service> GetStationsFromLocalFile_m3u(string fileName)
         //{
         //    using (StreamReader reader = File.OpenText(fileName))

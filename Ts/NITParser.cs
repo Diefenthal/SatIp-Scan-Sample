@@ -23,7 +23,7 @@ namespace SatIp
     public class NITParser
     {
         private TsSectionDecoder dec1;
-        //private TsSectionDecoder dec2;
+        private TsSectionDecoder dec2;
         private string networkName = "Unknown";
         private Dictionary<int, NetworkInformation> _networkInformations = new Dictionary<int, NetworkInformation>();
         private NetworkInformation _currentNetwork = null;
@@ -64,12 +64,14 @@ namespace SatIp
                 switch (descriptor_tag)
                 {
                     case 0x40:
-                        networkName = ReadString(section.Data, descOffset + 2, descriptor_length);
+                        networkName = Utils.ReadString(section.Data, descOffset + 2, descriptor_length);
                         Console.WriteLine("Network Name: " + networkName);
                         break;
                     case 0x4A: // linkage descriptor
+                        ReadLinkageDescriptor(section.Data, descOffset + 2, descriptor_length);
                         break;
-                    case 0x5F: // private_data_specifier_descriptor                            
+                    case 0x5F: // private_data_specifier_descriptor   
+                        ReadPrivateDataSpecifierDescriptor(section.Data, descOffset + 2, descriptor_length);
                         break;
                     default:
                         Console.WriteLine("NIT Descriptor UNKNOWN: 0x{0:X2}", descriptor_tag);
@@ -116,19 +118,19 @@ namespace SatIp
                     switch (descriptor_tag)
                     {
                         case 0x40: // network name descriptor
-                            networkName = ReadString(section.Data, descOffset + 2, descriptor_length);
+                            networkName = Utils.ReadString(section.Data, descOffset + 2, descriptor_length);
                             break;
                         case 0x41: // service list descriptor
                             break;
                         case 0x42: // stuffing descriptor
                             break;
                         case 0x43: // satellite delivery system descriptor
-                            ReadSatelliteDeliverySystem(section.Data, transOffset + 2, descriptor_length);
+                            ReadSatelliteDeliverySystem(section.Data, transOffset +2, descriptor_length);
                             break;
                         case 0x44: // cable delivery system descriptor
                             break;                        
                         case 0x5A: //terrestrial_delivery_system_descriptor
-                            ReadTerrestrialDeliverySystem(section.Data, transOffset + 2, descriptor_length);
+                            //ReadTerrestrialDeliverySystem(section.Data, transOffset + 2, descriptor_length);
                             break;
                         case 0x5B: // multilingual_network_name_descriptor                            
                             break;                        
@@ -163,63 +165,93 @@ namespace SatIp
             }
             IsReady = true;
         }
+        private int ReadPrivateDataSpecifierDescriptor(byte[] buffer, int offset, byte descriptorLength)
+        {
+            int privatedataspecifier = ((buffer[offset] << 24) + (buffer[offset + 1] << 16) + (buffer[offset + 2] << 8) + buffer[offset + 3]);
+            return descriptorLength;
+        }
+        private int ReadLinkageDescriptor(byte[] data, int offset, byte descriptorlength)
+        {
+            var TransportStreamId = (ushort)((data[0] << 8) + data[1]);
+            var OriginalNetworkId = (ushort)((data[2] << 8) + data[3]);
+            var ServiceId = (ushort)((data[4] << 8) + data[5]);
+            var LinkageType = data[6];
+            return descriptorlength;
+        }
         private int ReadSatelliteDeliverySystem(byte[] buffer, int offset, byte descriptorLength)
         {
-            _currentNetwork.Frequency = ((buffer[offset] << 24) +
-                                       (buffer[offset + 1] << 16) +
-                                       (buffer[offset + 2] << 8) +
-                                        buffer[offset + 3]) / 100;
+            int lastIndex = offset;
+
+            _currentNetwork.Frequency = Utils.ConvertBCDToInt(buffer, lastIndex, 8);
+            
+            lastIndex += 4;
+
+            _currentNetwork.OrbitalPosition = Utils.ConvertBCDToInt(buffer, lastIndex, 4);
+            lastIndex += 2;
+
+            _currentNetwork.EastFlag = ((buffer[lastIndex] & 0x80) != 0);
+            _currentNetwork.Polarization = (buffer[lastIndex] >> 5) & 0x03;
+            _currentNetwork.RollOff = (buffer[lastIndex] >> 3) & 0x03;
+            _currentNetwork.ModulationSystem = ((buffer[lastIndex] & 0x04) >> 2);
+            _currentNetwork.ModulationType = buffer[lastIndex] & 0x03;
+
+            lastIndex++;
+
+            _currentNetwork.SymbolRate = Utils.ConvertBCDToInt(buffer, lastIndex, 7);
+            _currentNetwork.innerFec = buffer[lastIndex + 3] & 0x17;
+            //lastIndex += 4;
+
             return descriptorLength;
         }
         private int ReadTerrestrialDeliverySystem(byte[] buffer, int offset, byte descriptorLength)
         {
-            _currentNetwork.Frequency = ((buffer[offset] << 24) +
-                                       (buffer[offset + 1] << 16) +
-                                       (buffer[offset + 2] << 8) +
-                                        buffer[offset + 3]) / 100;
+            //_currentNetwork.Frequency = ((buffer[offset] << 24) +
+            //                           (buffer[offset + 1] << 16) +
+            //                           (buffer[offset + 2] << 8) +
+            //                            buffer[offset + 3]) / 100;
 
-            int bandwidth = (buffer[offset + 4] & 0xE0) >> 5;
+            //int bandwidth = (buffer[offset + 4] & 0xE0) >> 5;
 
-            // Map the bandwidth code to a number (in MHz)
-            switch (bandwidth)
-            {
-                case 0:
-                    _currentNetwork.Bandwidth = 8;
-                    break;
-                case 1:
-                    _currentNetwork.Bandwidth = 7;
-                    break;
-                case 2:
-                    _currentNetwork.Bandwidth = 6;
-                    break;
-                case 3:
-                    _currentNetwork.Bandwidth = 5;
-                    break;
-                default:
+            //// Map the bandwidth code to a number (in MHz)
+            //switch (bandwidth)
+            //{
+            //    case 0:
+            //        _currentNetwork.Bandwidth = 8;
+            //        break;
+            //    case 1:
+            //        _currentNetwork.Bandwidth = 7;
+            //        break;
+            //    case 2:
+            //        _currentNetwork.Bandwidth = 6;
+            //        break;
+            //    case 3:
+            //        _currentNetwork.Bandwidth = 5;
+            //        break;
+            //    default:
 
-                    break;
-            }
-            int priority = (buffer[offset + 4] & 0x10) >> 4;
-            int time_slicing_indicator = (buffer[offset + 4] & 0x08) >> 3;
-            int MPE_FEC_indicator = (buffer[offset + 4] & 0x04) >> 2;
-            int constellation = (buffer[offset + 5] & 0xC0) >> 6;
+            //        break;
+            //}
+            //int priority = (buffer[offset + 4] & 0x10) >> 4;
+            //int time_slicing_indicator = (buffer[offset + 4] & 0x08) >> 3;
+            //int MPE_FEC_indicator = (buffer[offset + 4] & 0x04) >> 2;
+            //int constellation = (buffer[offset + 5] & 0xC0) >> 6;
 
-            // Map the constealltion code to a ModulationType
-            switch (constellation)
-            {
-                case 0:
-                    _currentNetwork.ModulationType = "Qpsk";
-                    break;
-                case 1:
-                    _currentNetwork.ModulationType = "16qam";
-                    break;
-                case 2:
-                    _currentNetwork.ModulationType = "64qam";
-                    break;
-                default:
+            //// Map the constealltion code to a ModulationType
+            //switch (constellation)
+            //{
+            //    case 0:
+            //        _currentNetwork.ModulationType = "Qpsk";
+            //        break;
+            //    case 1:
+            //        _currentNetwork.ModulationType = "16qam";
+            //        break;
+            //    case 2:
+            //        _currentNetwork.ModulationType = "64qam";
+            //        break;
+            //    default:
 
-                    break;
-            }
+            //        break;
+            //}
             return descriptorLength;
         }
         private int ReadLCN(byte[] buffer, int offset, int descriptorLength)
@@ -234,57 +266,7 @@ namespace SatIp
             }
             return descOffset - offset;
         }
-        protected string ReadString(byte[] data, int offset, int length)
-        {
-            string encoding = "utf-8"; // Standard latin alphabet
-            List<byte> bytes = new List<byte>();
-            for (int i = 0; i < length; i++)
-            {
-                byte character = data[offset + i];
-                bool notACharacter = false;
-                if (i == 0)
-                {
-                    if (character < 0x20)
-                    {
-                        switch (character)
-                        {
-                            case 0x00:
-                                break;
-                            case 0x01:
-                                encoding = "iso-8859-5";
-                                break;
-                            case 0x02:
-                                encoding = "iso-8859-6";
-                                break;
-                            case 0x03:
-                                encoding = "iso-8859-7";
-                                break;
-                            case 0x04:
-                                encoding = "iso-8859-8";
-                                break;
-                            case 0x05:
-                                encoding = "iso-8859-9";
-                                break;
-                            default:
-                                break;
-                        }
-                        notACharacter = true;
-                    }
-                }
-                if (character < 0x20 || (character >= 0x80 && character <= 0x9F))
-                {                    
-                    notACharacter = true;
-                }
-                if (!notACharacter)
-                {
-                    bytes.Add(character);
-                }
-            }
-            Encoding enc = Encoding.GetEncoding(encoding);
-            ASCIIEncoding destEnc = new ASCIIEncoding();
-            byte[] destBytes = Encoding.Convert(enc, destEnc, bytes.ToArray());
-            return destEnc.GetString(destBytes);
-        }
+        
     
         public void OnTsPacket(byte[] tsPacket)
         {
@@ -298,6 +280,8 @@ namespace SatIp
         private int _originalNetworkId;
         private string _networkName;
         private Dictionary<int, int> _lcns = new Dictionary<int, int>();
+        internal int innerFec;
+
         public NetworkInformation(int transportStreamId, int originalNetworkId, string networkName)
         {            
             _transportStreamId = transportStreamId;
@@ -314,10 +298,17 @@ namespace SatIp
             get { return _lcns.Keys.Count; }
         }
         
-        public string ModulationType { get; set; }
+        
 
         public int Bandwidth { get; set; }
 
         public int Frequency { get; set; }
+        public object SymbolRate { get; internal set; }
+        public int ModulationType { get; internal set; }
+        public object ModulationSystem { get; internal set; }
+        public int RollOff { get; internal set; }
+        public int Polarization { get; internal set; }
+        public bool EastFlag { get; internal set; }
+        public int OrbitalPosition { get; internal set; }
     }
 }

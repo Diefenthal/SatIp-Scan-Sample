@@ -33,7 +33,10 @@ namespace SatIp
         private SatIpDevice _device;
         private bool _isScanning = false;
         private bool _stopScanning = false;
-
+        PATParser pat;
+        PMTParser pmt;
+        SDTParser sdt;
+        NITParser nit;
         string _file;
 
 
@@ -306,10 +309,12 @@ namespace SatIp
             if (_scanThread == null)
             {
                 _scanThreadStopEvent = new AutoResetEvent(false);
-                _scanThread = new Thread(new ThreadStart(DoScan));
-                _scanThread.Name = "SAT>IP Scan";
-                _scanThread.IsBackground = true;
-                _scanThread.Priority = ThreadPriority.Highest;
+                _scanThread = new Thread(new ThreadStart(DoScan))
+                {
+                    Name = "SAT>IP Scan",
+                    IsBackground = true,
+                    Priority = ThreadPriority.Highest
+                };
                 _scanThread.Start();
             }
         }
@@ -391,23 +396,32 @@ namespace SatIp
 
                     /* Say the Sat>IP server we want Receives the Recieption Details SDP */
                     statuscode = _device.RtspSession.Describe();
-
+                    
                     if (_locked)
                     {
+                        
                         /* Say the Sat>IP server we want Receives the ProgramAssociationTable */
                         //_device.RtspSession.Play("&addpids=0");                        
-                        PATParser pat;
+
                         GetPAT(_udpclient, _remoteEndPoint, out pat);
                         /* Say the Sat>IP server we want not more Receives the ProgramAssociationTable */
                         _device.RtspSession.Play("&delpids=0");
+                        
                         /* Loop the ProgramAssociationTable Programs */
                         foreach (var i in pat.Programs)
                         {
-                            if (i.Key != 0)
+                            if (i.Key == 0)
+                            {
+                                /* Say the Sat>IP server we want Receives the NetworkinformationTable  */
+                                _device.RtspSession.Play(string.Format("&addpids={0}", i.Value));
+                                GetNIT(_udpclient, _remoteEndPoint, pat.TransportStreamId, out nit);
+                                /* Say the Sat>IP server we want not more Receives the NetworkInformationTable */
+                                _device.RtspSession.Play(string.Format("&delpids={0}", 16));
+                            }
+                            else
                             {
                                 /* Say the Sat>IP server we want Receives the ProgramMapTable for Pid x */
                                 _device.RtspSession.Play(string.Format("&addpids={0}", i.Value));
-                                PMTParser pmt;
                                 GetPMT(_udpclient, _remoteEndPoint, (short)i.Value, out pmt);
                                 /* Say the Sat>IP server we want not more Receives the ProgramMapTable for Pid x */
                                 _device.RtspSession.Play(string.Format("&delpids={0}", i.Value));
@@ -415,16 +429,16 @@ namespace SatIp
                                 //pmts.Add(pmt.ProgramNumber, pmt);
                             }
                         }
-                        /* Say the Sat>IP server we want Receives the ServiceDescriptionTable */
+                        /*Now we had in the best case the ProgramAssociationTable, NetworkInformationTable, the ProgramMapTables for each 
+                         * in ProgramAssociationTable referenced Program and need now the ServiceDescription Table
+                         * Say the Sat>IP server we want Receives the ServiceDescriptionTable */
                         _device.RtspSession.Play("&addpids=17");
-                        SDTParser sdt;
+                        
                         GetSDT(_udpclient, _remoteEndPoint, out sdt);
                         /* Say the Sat>IP server we want not more Receives the ServiceDescriptionTable */
                         _device.RtspSession.Play(string.Format("&delpids={0}", 17));
-                        _device.RtspSession.Play(string.Format("&addpids={0}", 16));
-                        NITParser nit;
-                        GetNIT(_udpclient, _remoteEndPoint, sdt.TransportStreamId, out nit);
-                        _device.RtspSession.Play(string.Format("&delpids={0}", 16));
+                        
+                        
 
 
                         /* 
@@ -455,18 +469,18 @@ namespace SatIp
                         int[] serviceids = sdt.Services;
                         foreach (int serviceid in serviceids)
                         {
-                            Channel chan = new Channel
-                            {
-                                //Frequency = nit.GetNetworkInformation(serviceid).Frequency,
-                                ServiceType = sdt.GetServiceDescription(serviceid).ServiceType,
-                                ServiceName = sdt.GetServiceDescription(serviceid).ServiceName,
-                                ServiceProvider = sdt.GetServiceDescription(serviceid).ProviderName,
-                                ServiceId = sdt.GetServiceDescription(serviceid).ServiceID,
-                                Schedule = sdt.GetServiceDescription(serviceid).EitScheduleFlag,
-                                PresentFollow = sdt.GetServiceDescription(serviceid).EitPresentFollowingFlag,
-                                Status = sdt.GetServiceDescription(serviceid).RunningStatus,
-                                Scrambled = sdt.GetServiceDescription(serviceid).FreeCaMode
-                            };
+                            Channel chan = new Channel();                         
+                            
+                            //chan.Frequency = nit.GetNetworkInformation(pat.TransportStreamId).Frequency;
+                            chan.ServiceType = sdt.GetServiceDescription(serviceid).ServiceType;
+                            chan.ServiceName = sdt.GetServiceDescription(serviceid).ServiceName;
+                            chan.ServiceProvider = sdt.GetServiceDescription(serviceid).ProviderName;
+                            chan.ServiceId = sdt.GetServiceDescription(serviceid).ServiceID;
+                            chan.Schedule = sdt.GetServiceDescription(serviceid).EitScheduleFlag;
+                            chan.PresentFollow = sdt.GetServiceDescription(serviceid).EitPresentFollowingFlag;
+                            chan.Status = sdt.GetServiceDescription(serviceid).RunningStatus;
+                            chan.Scrambled = sdt.GetServiceDescription(serviceid).FreeCaMode;
+                            
                             AddResults(chan);
                         }
                         Thread.Sleep(5000);
@@ -522,8 +536,10 @@ namespace SatIp
                         chan.Status.ToString(),
                         chan.Scrambled.ToString()                        
                     };
-                ListViewItem lstItem = new ListViewItem(items);
-                lstItem.Checked = true;
+                ListViewItem lstItem = new ListViewItem(items)
+                {
+                    Checked = true
+                };
                 lwResults.Items.Add(lstItem);
             }
 

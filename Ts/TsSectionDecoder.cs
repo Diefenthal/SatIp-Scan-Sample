@@ -125,11 +125,8 @@ namespace SatIp
                     }
                     if (_section.SectionComplete() && (_section.section_length > 0))
                     {
-                        this.OnNewSection(_section);
-                        if (this.OnSectionDecoded != null)
-                        {
-                            this.OnSectionDecoded(_section);
-                        }
+                        OnNewSection(_section);
+                        OnSectionDecoded?.Invoke(_section);
                         _section.Reset();
                     }
                     num2 = 0;

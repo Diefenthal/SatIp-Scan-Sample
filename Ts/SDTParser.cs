@@ -14,6 +14,7 @@
     You should have received a copy of the GNU General Public License
     along with SatIp.  If not, see <http://www.gnu.org/licenses/>.
 */
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -94,6 +95,7 @@ namespace SatIp
                         case 0x49: // country_availability_descriptor
                             break;
                         case 0x4A: // linkage_descriptor
+                            ReadLinkageDescriptor(section.Data, descOffset + 2, descriptor_length);
                             break;
                         case 0x4B: // NVOD_reference_descriptor
                             break;
@@ -105,6 +107,7 @@ namespace SatIp
                         case 0x51: // mosaic_descriptor
                             break;
                         case 0x53: // CA_identifier_descriptor
+                            ReadCAIdentifierDescriptor(section.Data, descOffset + 2, descriptor_length);
                             break;
                         case 0x57: // telephone_descriptor
                             break;
@@ -130,6 +133,7 @@ namespace SatIp
                         case 0x7F: // extension descriptor
                             break;
                         default:
+                            Console.WriteLine("SDT Descriptor UNKNOWN: 0x{0:X2}", descriptor_tag);
                             break;
                     }
                     descOffset += descriptor_length + 2;
@@ -151,76 +155,44 @@ namespace SatIp
             {
                 _serviceDescription.ServiceType = data[offset];  
                 byte ProviderNameLength = data[offset + 1];
-                _serviceDescription.ProviderName = ReadString(data, offset + 2, (int)ProviderNameLength);
+                _serviceDescription.ProviderName = Utils.ReadString(data, offset + 2, (int)ProviderNameLength);
                 byte ServiceNameLength = data[offset + 2 + ProviderNameLength];
-                _serviceDescription.ServiceName = ReadString(data, offset + 3 + ProviderNameLength, ServiceNameLength); 
+                _serviceDescription.ServiceName = Utils.ReadString(data, offset + 3 + ProviderNameLength, ServiceNameLength); 
             }
         private void ReadComponentDescriptor(byte[] data, int offset, byte descriptor_length)
         {
             int stream_content = data[offset] & 0x0F;
             byte component_type = data[offset + 1];
             byte component_tag = data[offset + 2];
-            string language_code = ReadString(data, offset + 3, 3);
-            string description = ReadString(data, offset + 6, descriptor_length - 6);
+            string language_code = Utils.ReadString(data, offset + 3, 3);
+            string description = Utils.ReadString(data, offset + 6, descriptor_length - 6);
         }
         private int ReadPrivateDataSpecifierDescriptor(byte[] buffer, int offset, byte descriptorLength)
         {
             int privatedataspecifier = ((buffer[offset] << 24) + (buffer[offset + 1] << 16) + (buffer[offset + 2] << 8) + buffer[offset + 3]);
             return descriptorLength;
         }
-        protected string ReadString(byte[] data, int offset, int length)
+        private void ReadLinkageDescriptor(byte[] data, int offset, byte descriptor_length)
         {
-            string encoding = "utf-8"; // Standard latin alphabet
-            List<byte> bytes = new List<byte>();
-            for (int i = 0; i < length; i++)
-            {
-                byte character = data[offset + i];
-                bool notACharacter = false;
-                if (i == 0)
-                {
-                    if (character < 0x20)
-                    {
-                        switch (character)
-                        {
-                            case 0x00:
-                                break;
-                            case 0x01:
-                                encoding = "iso-8859-5";
-                                break;
-                            case 0x02:
-                                encoding = "iso-8859-6";
-                                break;
-                            case 0x03:
-                                encoding = "iso-8859-7";
-                                break;
-                            case 0x04:
-                                encoding = "iso-8859-8";
-                                break;
-                            case 0x05:
-                                encoding = "iso-8859-9";
-                                break;
-                            default:
-                                break;
-                        }
-                        notACharacter = true;
-                    }
-                }
-                if (character < 0x20 || (character >= 0x80 && character <= 0x9F))
-                {                    
-                    notACharacter = true;
-                }
-                if (!notACharacter)
-                {
-                    bytes.Add(character);
-                }
-            }
-            Encoding enc = Encoding.GetEncoding(encoding);
-            ASCIIEncoding destEnc = new ASCIIEncoding();
-            byte[] destBytes = Encoding.Convert(enc, destEnc, bytes.ToArray());
-            return destEnc.GetString(destBytes);
+            var TransportStreamId = (ushort)((data[0] << 8) + data[1]);
+            var OriginalNetworkId = (ushort)((data[2] << 8) + data[3]);
+            var ServiceId = (ushort)((data[4] << 8) + data[5]);
+            var LinkageType = data[6];
+        }
+        
+        private void ReadDataBroadcastDescriptor(byte[] data, int offset, byte descriptor_length)
+        { }
+        
+        private void ReadCAIdentifierDescriptor(byte[] data, int offset, byte descriptor_length)
+        {
+            var lastindex = offset + 2;
+            var al = new List<ushort>();
+            for (int offset2 = lastindex; offset2 < lastindex + descriptor_length - 1; offset2 += 2)
+                al.Add((ushort)((data[offset2] << 8) | data[offset2 + 1]));
+            var CaSystemIds = (ushort[])al.ToArray();
         }
     }
-    
+
     public class ServiceDescription
     {
         public int ServiceID;

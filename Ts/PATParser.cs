@@ -24,6 +24,9 @@ namespace SatIp
         private List<short> _pids = new List<short>();
         private Dictionary<int, int> _programNumbers = new Dictionary<int, int>();
         public int NetworkPid;
+
+        public int TransportStreamId { get; private set; }
+
         private int _programcount;
         public bool IsReady;
 
@@ -45,6 +48,7 @@ namespace SatIp
         
         public void OnNewSection(TsSection section)
         {
+            TransportStreamId = section.table_id_extension;
             _programcount = (section.section_length - 9) / 4;
             for (var i = 9; i < _programcount; ++i)
             {

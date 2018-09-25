@@ -14,6 +14,7 @@
     You should have received a copy of the GNU General Public License
     along with SatIp.  If not, see <http://www.gnu.org/licenses/>.
 */
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -65,7 +66,7 @@ namespace SatIp
                             int langOffset = descOffset + 2;
                             while (langOffset < descOffset + 2 + descriptor_length)
                             {
-                                pm.Language = ReadString(section.Data, langOffset, 3);
+                                pm.Language = Utils.ReadString(section.Data, langOffset, 3);
                                 pm.AudioType = section.Data[3 + langOffset];
                                 langOffset += 4;
                             }
@@ -89,10 +90,10 @@ namespace SatIp
                             int lanOffset = descOffset + 2;
                             while (lanOffset < descOffset + 2 + descriptor_length)
                             {
-                                var Language = ReadString(section.Data, lanOffset, 3);
-                                var SubtitlingType = ReadString(section.Data,3 + lanOffset, 1);
-                                var composition_page_id = ReadString(section.Data, 4 + lanOffset, 2);
-                                var ancillary_page_id = ReadString(section.Data, 6 + lanOffset, 2);
+                                var Language = Utils.ReadString(section.Data, lanOffset, 3);
+                                var SubtitlingType = Utils.ReadString(section.Data,3 + lanOffset, 1);
+                                var composition_page_id = Utils.ReadString(section.Data, 4 + lanOffset, 2);
+                                var ancillary_page_id = Utils.ReadString(section.Data, 6 + lanOffset, 2);
                                 lanOffset += 8;
                             }
                             break;
@@ -128,6 +129,7 @@ namespace SatIp
                         case 0x7F: // extension descriptor
                             break;
                         default:
+                            Console.WriteLine("PMT Descriptor UNKNOWN: 0x{0:X2}", descriptor_tag);
                             break;
                     }
                     descOffset += descriptor_length + 2;
@@ -146,57 +148,7 @@ namespace SatIp
             int privatedataspecifier = ((buffer[offset] << 24) + (buffer[offset + 1] << 16) + (buffer[offset + 2] << 8) + buffer[offset + 3]);
             return descriptorLength;
         }
-        protected string ReadString(byte[] data, int offset, int length)
-        {
-            string encoding = "utf-8"; // Standard latin alphabet
-            List<byte> bytes = new List<byte>();
-            for (int i = 0; i < length; i++)
-            {
-                byte character = data[offset + i];
-                bool notACharacter = false;
-                if (i == 0)
-                {
-                    if (character < 0x20)
-                    {
-                        switch (character)
-                        {
-                            case 0x00:
-                                break;
-                            case 0x01:
-                                encoding = "iso-8859-5";
-                                break;
-                            case 0x02:
-                                encoding = "iso-8859-6";
-                                break;
-                            case 0x03:
-                                encoding = "iso-8859-7";
-                                break;
-                            case 0x04:
-                                encoding = "iso-8859-8";
-                                break;
-                            case 0x05:
-                                encoding = "iso-8859-9";
-                                break;
-                            default:
-                                break;
-                        }
-                        notACharacter = true;
-                    }
-                }
-                if (character < 0x20 || (character >= 0x80 && character <= 0x9F))
-                {
-                    notACharacter = true;
-                }
-                if (!notACharacter)
-                {
-                    bytes.Add(character);
-                }
-            }
-            Encoding enc = Encoding.GetEncoding(encoding);
-            ASCIIEncoding destEnc = new ASCIIEncoding();
-            byte[] destBytes = Encoding.Convert(enc, destEnc, bytes.ToArray());
-            return destEnc.GetString(destBytes);
-        }
+        
     }
     public class ProgramMap
     {
