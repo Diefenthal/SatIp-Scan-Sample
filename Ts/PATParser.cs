@@ -25,6 +25,7 @@ namespace SatIp
         private Dictionary<int, int> _programNumbers = new Dictionary<int, int>();
         public int NetworkPid;
 
+        public bool HasNitReference { get; private set; }
         public int TransportStreamId { get; private set; }
 
         private int _programcount;
@@ -49,21 +50,26 @@ namespace SatIp
         public void OnNewSection(TsSection section)
         {
             TransportStreamId = section.table_id_extension;
-            _programcount = (section.section_length - 9) / 4;
-            for (var i = 9; i < _programcount; ++i)
+            int pmtCount = 0;
+            int loop = (section.section_length - 9) / 4;
+            for (int i = 0; i < loop; i++)
             {
+                int offset = (8 + (i * 4));
+                int program_nr = ((section.Data[offset]) << 8) + section.Data[offset + 1];
+                int pmt_pid = ((section.Data[offset + 2] & 0x1F) << 8) + section.Data[offset + 3];
 
-                var prgId = (section.Data[i * 4] << 8) + section.Data[(i * 4) + 1];                
-                var pmtId = ((section.Data[(i * 4) + 2] & 0x1F) << 8) + section.Data[(i * 4) + 3];
-                if (pmtId == 0)
+                if (program_nr == 0)
                 {
-                    NetworkPid = prgId;
+                    NetworkPid = pmt_pid;
+                    HasNitReference = true;
                 }
-                if (!_programNumbers.ContainsKey(prgId))
+                if (!_programNumbers.ContainsKey(program_nr))
                 {
-                    _programNumbers.Add(prgId, pmtId);
+                    _programNumbers.Add(program_nr, pmt_pid);
                 }
             }
+            pmtCount++;
+
             IsReady = true;
         }
         public void OnTsPacket(byte[] tsPacket)
