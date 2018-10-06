@@ -16,6 +16,7 @@
 */
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
@@ -212,7 +213,7 @@ namespace SatIp
                     }
                 }
             }
-
+            SetControlPropertyThreadSafe(lblPAT, "BackColor", Color.DarkGreen);
             return retval;
         }
         private bool GetNIT(UdpClient client, IPEndPoint endpoint, int tsid, out NITParser nit)
@@ -239,7 +240,7 @@ namespace SatIp
                     }
                 }
             }
-
+            SetControlPropertyThreadSafe(lblNIT, "BackColor", Color.DarkGreen);
             return retval;
         }
         private bool GetPMT(UdpClient client, IPEndPoint endpoint, short pid, out PMTParser pmt)
@@ -266,7 +267,7 @@ namespace SatIp
                     }
                 }
             }
-
+            SetControlPropertyThreadSafe(lblPMT, "BackColor", Color.DarkGreen);
             return retval;
         }
         private bool GetSDT(UdpClient client, IPEndPoint endpoint, out SDTParser sdt)
@@ -295,7 +296,7 @@ namespace SatIp
                     }
                 }
             }
-
+            SetControlPropertyThreadSafe(lblSDT, "BackColor", Color.DarkGreen);
             return retval;
         }
 
@@ -354,6 +355,10 @@ namespace SatIp
                 string tuning;
                 while (Index <= Count)
                 {
+                    SetControlPropertyThreadSafe(lblPAT, "BackColor", Color.LimeGreen);
+                    SetControlPropertyThreadSafe(lblPMT, "BackColor", Color.LimeGreen);
+                    SetControlPropertyThreadSafe(lblNIT, "BackColor", Color.LimeGreen);
+                    SetControlPropertyThreadSafe(lblSDT, "BackColor", Color.LimeGreen);
                     Dictionary<int, PMTParser> pmtTables = new Dictionary<int, PMTParser>();
                     if (_stopScanning) return;
                     float percent = ((float)(Index)) / Count;
@@ -416,7 +421,7 @@ namespace SatIp
                                 _device.RtspSession.Play(string.Format("&addpids={0}", i.Value));
                                 GetNIT(_udpclient, _remoteEndPoint, pat.TransportStreamId, out nit);
                                 /* Say the Sat>IP server we want not more Receives the NetworkInformationTable */
-                                _device.RtspSession.Play(string.Format("&delpids={0}", 16));
+                                _device.RtspSession.Play(string.Format("&delpids={0}", i.Value));
                             }
                             else
                             {

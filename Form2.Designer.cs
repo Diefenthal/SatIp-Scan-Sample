@@ -57,6 +57,10 @@ namespace SatIp
             this.lblSourceA = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.lblNIT = new System.Windows.Forms.Label();
+            this.lblSDT = new System.Windows.Forms.Label();
+            this.lblPMT = new System.Windows.Forms.Label();
+            this.lblPAT = new System.Windows.Forms.Label();
             this.btnScan = new System.Windows.Forms.Button();
             this.label12 = new System.Windows.Forms.Label();
             this.label11 = new System.Windows.Forms.Label();
@@ -66,6 +70,8 @@ namespace SatIp
             this.lwResults = new System.Windows.Forms.ListView();
             this.colServiceType = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.colServiceName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.colServiceProvider = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.colServiceId = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.pbxDVBC = new System.Windows.Forms.PictureBox();
             this.pbxDVBS = new System.Windows.Forms.PictureBox();
@@ -81,8 +87,6 @@ namespace SatIp
             this.lblDeviceType = new System.Windows.Forms.Label();
             this.blUniqueDeviceName = new System.Windows.Forms.Label();
             this.lblFriendlyName = new System.Windows.Forms.Label();
-            this.colServiceProvider = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.colServiceId = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
             this.groupBox1.SuspendLayout();
@@ -112,7 +116,7 @@ namespace SatIp
             this.groupBox2.Controls.Add(this.label4);
             this.groupBox2.Location = new System.Drawing.Point(13, 186);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(487, 166);
+            this.groupBox2.Size = new System.Drawing.Size(705, 166);
             this.groupBox2.TabIndex = 1;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Sources";
@@ -122,7 +126,7 @@ namespace SatIp
             this.cbxSourceD.FormattingEnabled = true;
             this.cbxSourceD.Location = new System.Drawing.Point(117, 132);
             this.cbxSourceD.Name = "cbxSourceD";
-            this.cbxSourceD.Size = new System.Drawing.Size(364, 21);
+            this.cbxSourceD.Size = new System.Drawing.Size(582, 21);
             this.cbxSourceD.TabIndex = 9;
             this.cbxSourceD.Visible = false;
             // 
@@ -131,7 +135,7 @@ namespace SatIp
             this.cbxSourceC.FormattingEnabled = true;
             this.cbxSourceC.Location = new System.Drawing.Point(117, 104);
             this.cbxSourceC.Name = "cbxSourceC";
-            this.cbxSourceC.Size = new System.Drawing.Size(364, 21);
+            this.cbxSourceC.Size = new System.Drawing.Size(582, 21);
             this.cbxSourceC.TabIndex = 8;
             this.cbxSourceC.Visible = false;
             // 
@@ -140,7 +144,7 @@ namespace SatIp
             this.cbxSourceB.FormattingEnabled = true;
             this.cbxSourceB.Location = new System.Drawing.Point(117, 76);
             this.cbxSourceB.Name = "cbxSourceB";
-            this.cbxSourceB.Size = new System.Drawing.Size(364, 21);
+            this.cbxSourceB.Size = new System.Drawing.Size(582, 21);
             this.cbxSourceB.TabIndex = 7;
             this.cbxSourceB.Visible = false;
             // 
@@ -149,7 +153,7 @@ namespace SatIp
             this.cbxSourceA.FormattingEnabled = true;
             this.cbxSourceA.Location = new System.Drawing.Point(117, 48);
             this.cbxSourceA.Name = "cbxSourceA";
-            this.cbxSourceA.Size = new System.Drawing.Size(364, 21);
+            this.cbxSourceA.Size = new System.Drawing.Size(582, 21);
             this.cbxSourceA.TabIndex = 6;
             // 
             // cbxDiseqC
@@ -212,6 +216,10 @@ namespace SatIp
             // groupBox3
             // 
             this.groupBox3.BackColor = System.Drawing.Color.Transparent;
+            this.groupBox3.Controls.Add(this.lblNIT);
+            this.groupBox3.Controls.Add(this.lblSDT);
+            this.groupBox3.Controls.Add(this.lblPMT);
+            this.groupBox3.Controls.Add(this.lblPAT);
             this.groupBox3.Controls.Add(this.btnScan);
             this.groupBox3.Controls.Add(this.label12);
             this.groupBox3.Controls.Add(this.label11);
@@ -221,14 +229,54 @@ namespace SatIp
             this.groupBox3.Controls.Add(this.lwResults);
             this.groupBox3.Location = new System.Drawing.Point(12, 358);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(487, 292);
+            this.groupBox3.Size = new System.Drawing.Size(706, 292);
             this.groupBox3.TabIndex = 2;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Search";
             // 
+            // lblNIT
+            // 
+            this.lblNIT.AutoSize = true;
+            this.lblNIT.BackColor = System.Drawing.Color.LimeGreen;
+            this.lblNIT.Location = new System.Drawing.Point(111, 80);
+            this.lblNIT.Name = "lblNIT";
+            this.lblNIT.Size = new System.Drawing.Size(25, 13);
+            this.lblNIT.TabIndex = 10;
+            this.lblNIT.Text = "NIT";
+            // 
+            // lblSDT
+            // 
+            this.lblSDT.AutoSize = true;
+            this.lblSDT.BackColor = System.Drawing.Color.LimeGreen;
+            this.lblSDT.Location = new System.Drawing.Point(76, 80);
+            this.lblSDT.Name = "lblSDT";
+            this.lblSDT.Size = new System.Drawing.Size(29, 13);
+            this.lblSDT.TabIndex = 9;
+            this.lblSDT.Text = "SDT";
+            // 
+            // lblPMT
+            // 
+            this.lblPMT.AutoSize = true;
+            this.lblPMT.BackColor = System.Drawing.Color.LimeGreen;
+            this.lblPMT.Location = new System.Drawing.Point(40, 80);
+            this.lblPMT.Name = "lblPMT";
+            this.lblPMT.Size = new System.Drawing.Size(30, 13);
+            this.lblPMT.TabIndex = 8;
+            this.lblPMT.Text = "PMT";
+            // 
+            // lblPAT
+            // 
+            this.lblPAT.AutoSize = true;
+            this.lblPAT.BackColor = System.Drawing.Color.LimeGreen;
+            this.lblPAT.Location = new System.Drawing.Point(6, 80);
+            this.lblPAT.Name = "lblPAT";
+            this.lblPAT.Size = new System.Drawing.Size(28, 13);
+            this.lblPAT.TabIndex = 7;
+            this.lblPAT.Text = "PAT";
+            // 
             // btnScan
             // 
-            this.btnScan.Location = new System.Drawing.Point(379, 13);
+            this.btnScan.Location = new System.Drawing.Point(598, 73);
             this.btnScan.Name = "btnScan";
             this.btnScan.Size = new System.Drawing.Size(102, 20);
             this.btnScan.TabIndex = 6;
@@ -239,7 +287,7 @@ namespace SatIp
             // label12
             // 
             this.label12.AutoSize = true;
-            this.label12.Location = new System.Drawing.Point(6, 58);
+            this.label12.Location = new System.Drawing.Point(6, 38);
             this.label12.Name = "label12";
             this.label12.Size = new System.Drawing.Size(71, 13);
             this.label12.TabIndex = 5;
@@ -248,7 +296,7 @@ namespace SatIp
             // label11
             // 
             this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(6, 39);
+            this.label11.Location = new System.Drawing.Point(6, 19);
             this.label11.Name = "label11";
             this.label11.Size = new System.Drawing.Size(65, 13);
             this.label11.TabIndex = 4;
@@ -256,23 +304,23 @@ namespace SatIp
             // 
             // pgbSignalLevel
             // 
-            this.pgbSignalLevel.Location = new System.Drawing.Point(117, 39);
+            this.pgbSignalLevel.Location = new System.Drawing.Point(79, 19);
             this.pgbSignalLevel.Name = "pgbSignalLevel";
-            this.pgbSignalLevel.Size = new System.Drawing.Size(364, 13);
+            this.pgbSignalLevel.Size = new System.Drawing.Size(621, 13);
             this.pgbSignalLevel.TabIndex = 3;
             // 
             // pgbSignalQuality
             // 
-            this.pgbSignalQuality.Location = new System.Drawing.Point(117, 58);
+            this.pgbSignalQuality.Location = new System.Drawing.Point(79, 38);
             this.pgbSignalQuality.Name = "pgbSignalQuality";
-            this.pgbSignalQuality.Size = new System.Drawing.Size(364, 13);
+            this.pgbSignalQuality.Size = new System.Drawing.Size(621, 13);
             this.pgbSignalQuality.TabIndex = 2;
             // 
             // pgbSearchResult
             // 
-            this.pgbSearchResult.Location = new System.Drawing.Point(6, 77);
+            this.pgbSearchResult.Location = new System.Drawing.Point(9, 57);
             this.pgbSearchResult.Name = "pgbSearchResult";
-            this.pgbSearchResult.Size = new System.Drawing.Size(475, 10);
+            this.pgbSearchResult.Size = new System.Drawing.Size(691, 10);
             this.pgbSearchResult.TabIndex = 1;
             // 
             // lwResults
@@ -283,9 +331,9 @@ namespace SatIp
             this.colServiceName,
             this.colServiceProvider,
             this.colServiceId});
-            this.lwResults.Location = new System.Drawing.Point(6, 93);
+            this.lwResults.Location = new System.Drawing.Point(6, 99);
             this.lwResults.Name = "lwResults";
-            this.lwResults.Size = new System.Drawing.Size(475, 193);
+            this.lwResults.Size = new System.Drawing.Size(694, 187);
             this.lwResults.TabIndex = 0;
             this.lwResults.UseCompatibleStateImageBehavior = false;
             this.lwResults.View = System.Windows.Forms.View.Details;
@@ -299,6 +347,15 @@ namespace SatIp
             // 
             this.colServiceName.Text = "ServiceName";
             this.colServiceName.Width = 100;
+            // 
+            // colServiceProvider
+            // 
+            this.colServiceProvider.Text = "ServiceProvider";
+            this.colServiceProvider.Width = 100;
+            // 
+            // colServiceId
+            // 
+            this.colServiceId.Text = "ServiceId";
             // 
             // groupBox1
             // 
@@ -318,7 +375,7 @@ namespace SatIp
             this.groupBox1.Controls.Add(this.lblFriendlyName);
             this.groupBox1.Location = new System.Drawing.Point(13, 13);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(486, 174);
+            this.groupBox1.Size = new System.Drawing.Size(705, 174);
             this.groupBox1.TabIndex = 3;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "groupBox1";
@@ -327,7 +384,7 @@ namespace SatIp
             // 
             this.pbxDVBC.Image = global::SatIp.Properties.Resources.dvb_c;
             this.pbxDVBC.InitialImage = null;
-            this.pbxDVBC.Location = new System.Drawing.Point(117, 145);
+            this.pbxDVBC.Location = new System.Drawing.Point(502, 145);
             this.pbxDVBC.Name = "pbxDVBC";
             this.pbxDVBC.Size = new System.Drawing.Size(71, 20);
             this.pbxDVBC.TabIndex = 29;
@@ -338,7 +395,7 @@ namespace SatIp
             // 
             this.pbxDVBS.Image = global::SatIp.Properties.Resources.dvb_s;
             this.pbxDVBS.InitialImage = null;
-            this.pbxDVBS.Location = new System.Drawing.Point(194, 145);
+            this.pbxDVBS.Location = new System.Drawing.Point(502, 145);
             this.pbxDVBS.Name = "pbxDVBS";
             this.pbxDVBS.Size = new System.Drawing.Size(71, 20);
             this.pbxDVBS.TabIndex = 30;
@@ -349,7 +406,7 @@ namespace SatIp
             // 
             this.pbxDVBT.Image = global::SatIp.Properties.Resources.dvb_t;
             this.pbxDVBT.InitialImage = null;
-            this.pbxDVBT.Location = new System.Drawing.Point(271, 145);
+            this.pbxDVBT.Location = new System.Drawing.Point(502, 145);
             this.pbxDVBT.Name = "pbxDVBT";
             this.pbxDVBT.Size = new System.Drawing.Size(71, 20);
             this.pbxDVBT.TabIndex = 31;
@@ -378,19 +435,19 @@ namespace SatIp
             // 
             this.tbxManufacture.Location = new System.Drawing.Point(116, 120);
             this.tbxManufacture.Name = "tbxManufacture";
-            this.tbxManufacture.Size = new System.Drawing.Size(238, 20);
+            this.tbxManufacture.Size = new System.Drawing.Size(457, 20);
             this.tbxManufacture.TabIndex = 26;
             // 
             // tbxModelDescription
             // 
             this.tbxModelDescription.Location = new System.Drawing.Point(116, 95);
             this.tbxModelDescription.Name = "tbxModelDescription";
-            this.tbxModelDescription.Size = new System.Drawing.Size(238, 20);
+            this.tbxModelDescription.Size = new System.Drawing.Size(457, 20);
             this.tbxModelDescription.TabIndex = 25;
             // 
             // pbxManufactureBrand
             // 
-            this.pbxManufactureBrand.Location = new System.Drawing.Point(360, 19);
+            this.pbxManufactureBrand.Location = new System.Drawing.Point(579, 19);
             this.pbxManufactureBrand.Name = "pbxManufactureBrand";
             this.pbxManufactureBrand.Size = new System.Drawing.Size(120, 120);
             this.pbxManufactureBrand.TabIndex = 24;
@@ -400,21 +457,21 @@ namespace SatIp
             // 
             this.tbxDeviceType.Location = new System.Drawing.Point(116, 69);
             this.tbxDeviceType.Name = "tbxDeviceType";
-            this.tbxDeviceType.Size = new System.Drawing.Size(238, 20);
+            this.tbxDeviceType.Size = new System.Drawing.Size(457, 20);
             this.tbxDeviceType.TabIndex = 23;
             // 
             // tbxUniqueDeviceName
             // 
             this.tbxUniqueDeviceName.Location = new System.Drawing.Point(116, 44);
             this.tbxUniqueDeviceName.Name = "tbxUniqueDeviceName";
-            this.tbxUniqueDeviceName.Size = new System.Drawing.Size(238, 20);
+            this.tbxUniqueDeviceName.Size = new System.Drawing.Size(457, 20);
             this.tbxUniqueDeviceName.TabIndex = 22;
             // 
             // tbxFriendlyName
             // 
             this.tbxFriendlyName.Location = new System.Drawing.Point(116, 19);
             this.tbxFriendlyName.Name = "tbxFriendlyName";
-            this.tbxFriendlyName.Size = new System.Drawing.Size(238, 20);
+            this.tbxFriendlyName.Size = new System.Drawing.Size(457, 20);
             this.tbxFriendlyName.TabIndex = 21;
             // 
             // lblDeviceType
@@ -444,21 +501,12 @@ namespace SatIp
             this.lblFriendlyName.TabIndex = 18;
             this.lblFriendlyName.Text = "Friendly Name";
             // 
-            // colServiceProvider
-            // 
-            this.colServiceProvider.Text = "ServiceProvider";
-            this.colServiceProvider.Width = 100;
-            // 
-            // colServiceId
-            // 
-            this.colServiceId.Text = "ServiceId";
-            // 
             // Form2
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
-            this.ClientSize = new System.Drawing.Size(511, 662);
+            this.ClientSize = new System.Drawing.Size(730, 662);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.groupBox2);
@@ -520,5 +568,9 @@ namespace SatIp
         private System.Windows.Forms.ColumnHeader colServiceName;
         private System.Windows.Forms.ColumnHeader colServiceProvider;
         private System.Windows.Forms.ColumnHeader colServiceId;
+        private System.Windows.Forms.Label lblNIT;
+        private System.Windows.Forms.Label lblSDT;
+        private System.Windows.Forms.Label lblPMT;
+        private System.Windows.Forms.Label lblPAT;
     }
 }
