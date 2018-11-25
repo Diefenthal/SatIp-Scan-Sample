@@ -35,8 +35,8 @@ namespace SatIp
 
             this.dec1 = new TsSectionDecoder(0x10, 0x40);
             this.dec1.OnSectionDecoded += new TsSectionDecoder.MethodOnSectionDecoded(this.OnNewSection);
-            //this.dec2 = new TsSectionDecoder(0x10, 0x41);
-            //this.dec2.OnSectionDecoded += new TsSectionDecoder.MethodOnSectionDecoded(this.OnNewSection);
+            this.dec2 = new TsSectionDecoder(0x10, 0x41);
+            this.dec2.OnSectionDecoded += new TsSectionDecoder.MethodOnSectionDecoded(this.OnNewSection);
         }
         public int NetworkCount
         {
@@ -271,7 +271,7 @@ namespace SatIp
         public void OnTsPacket(byte[] tsPacket)
         {
             this.dec1.OnTsPacket(tsPacket);
-            //this.dec2.OnTsPacket(tsPacket);
+            this.dec2.OnTsPacket(tsPacket);
         }
     }
     public class NetworkInformation

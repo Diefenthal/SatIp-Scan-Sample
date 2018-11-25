@@ -100,6 +100,38 @@
     <Compile Include="Ts\TsHeader.cs" />
     <Compile Include="Ts\TsSection.cs" />
     <Compile Include="Ts\TsSectionDecoder.cs" />
+    <Compile Include="SatIp\TunerType.cs" />
+    <Compile Include="Usercontrols\CableInformation.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Usercontrols\CableInformation.Designer.cs">
+      <DependentUpon>CableInformation.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Usercontrols\DeviceInformation.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Usercontrols\DeviceInformation.Designer.cs">
+      <DependentUpon>DeviceInformation.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Ini\IniMappingContext.cs" />
+    <Compile Include="Usercontrols\ProjectInformation.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Usercontrols\ProjectInformation.Designer.cs">
+      <DependentUpon>ProjectInformation.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Usercontrols\SatelliteInformation.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Usercontrols\SatelliteInformation.Designer.cs">
+      <DependentUpon>SatelliteInformation.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Usercontrols\TerrestrialInformation.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Usercontrols\TerrestrialInformation.Designer.cs">
+      <DependentUpon>TerrestrialInformation.cs</DependentUpon>
+    </Compile>
     <Compile Include="Utils.cs" />
     <EmbeddedResource Include="Devices.resx">
       <DependentUpon>Devices.cs</DependentUpon>
@@ -119,6 +151,21 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
+    <EmbeddedResource Include="Usercontrols\CableInformation.resx">
+      <DependentUpon>CableInformation.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Usercontrols\DeviceInformation.resx">
+      <DependentUpon>DeviceInformation.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Usercontrols\ProjectInformation.resx">
+      <DependentUpon>ProjectInformation.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Usercontrols\SatelliteInformation.resx">
+      <DependentUpon>SatelliteInformation.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Usercontrols\TerrestrialInformation.resx">
+      <DependentUpon>TerrestrialInformation.cs</DependentUpon>
+    </EmbeddedResource>
     <None Include="app.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

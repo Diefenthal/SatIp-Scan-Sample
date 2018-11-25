@@ -156,7 +156,16 @@ namespace SatIp
                         }
 
                         var presentationUrlElement = deviceElement.Element(n0 + "presentationURL");
-                        if (presentationUrlElement != null) _presentationUrl = presentationUrlElement.Value;
+                        if (presentationUrlElement != null)
+                        {
+                            if (presentationUrlElement.Value.StartsWith("Http;//"))
+                                _presentationUrl = presentationUrlElement.Value;
+                            _presentationUrl = locationUri.Scheme + "://" + locationUri.Host;
+                        }
+                        if (presentationUrlElement == null)
+                        {
+                            _presentationUrl = locationUri.Scheme + "://" + locationUri.Host;
+                        }
                         var capabilitiesElement = deviceElement.Element(n1 + "X_SATIPCAP");
                         if (capabilitiesElement != null)
                         {
@@ -166,12 +175,12 @@ namespace SatIp
                                 string[] capabilities = capabilitiesElement.Value.Split(',');
                                 foreach (var capability in capabilities)
                                 {
-                                    ReadCapability(capability);
+                                    ReadCapability(capability, _presentationUrl);
                                 }
                             }
                             else
                             {
-                                ReadCapability(capabilitiesElement.Value);
+                                ReadCapability(capabilitiesElement.Value, _presentationUrl);
                             }
                         }
                         var m3uElement = deviceElement.Element(n1 + "X_SATIPM3U");
@@ -186,7 +195,7 @@ namespace SatIp
         }
         
         #endregion
-        private void ReadCapability(string capability)
+        private void ReadCapability(string capability,string location)
         {
             
                 string[] cap = capability.Split('-');
@@ -199,7 +208,7 @@ namespace SatIp
                             
                             for(int i =0;i<int.Parse(cap[1]);i++)
                             {
-                                _tuners.Add(new SatelliteTuner());
+                                _tuners.Add(new SatelliteTuner(location));
                             }
                             
                             break;
@@ -211,7 +220,7 @@ namespace SatIp
                            
                             for (int i = 0; i < int.Parse(cap[1]); i++)
                             {
-                                _tuners.Add(new CableTuner());
+                                _tuners.Add(new CableTuner(location));
                             }
                             
                             break;
@@ -224,7 +233,7 @@ namespace SatIp
                             
                             for (int i = 0; i < int.Parse(cap[1]); i++)
                             {
-                                _tuners.Add(new TerrestrialTuner());
+                                _tuners.Add(new TerrestrialTuner(location));
                             }
                             
                             break;

@@ -14,42 +14,18 @@
     You should have received a copy of the GNU General Public License
     along with SatIp.  If not, see <http://www.gnu.org/licenses/>.
 */
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace SatIp
 {
-    public class CableTuner : Tuner
+    internal class CableTuner : Tuner
     {
-        public override TunerType Type
+        private string location;
+
+        public CableTuner(string location)
         {
-            get { return TunerType.Cable; }
-        }
-        public override int Index
-        {
-            get { throw new NotImplementedException(); }
+            this.location = location;
         }
 
-        public override int SignalLevel
-        {
-            get { throw new NotImplementedException(); }
-        }
-
-        public override int SignalQuality
-        {
-            get { throw new NotImplementedException(); }
-        }
-
-        public override bool SignalLocked
-        {
-            get { throw new NotImplementedException(); }
-        }
-
-        public override void Tune(string parameters)
-        {
-            throw new NotImplementedException();
-        }
+        public override TunerType Type => TunerType.Cable;
     }
 }

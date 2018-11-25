@@ -16,6 +16,7 @@
 */
 using System.Windows.Forms;
 using SatIp.Properties;
+using SatIp.Usercontrols;
 
 namespace SatIp
 {
@@ -45,18 +46,25 @@ namespace SatIp
             }
             var servernode = treeView1.Nodes[0].Nodes.Add(args.Device.UniqueDeviceName, args.Device.FriendlyName);
             servernode.ToolTipText = args.Device.DeviceDescription;
+            servernode.Tag = args.Device;
             foreach (var tuner in args.Device.Tuners)
             {
                 switch (tuner.Type)
                 {
                     case TunerType.Cable:
-                        servernode.Nodes.Add("Cable");
+                        var dvbcnode = new TreeNode("DVBC Tuner");
+                        dvbcnode.Tag = "Cable";
+                        servernode.Nodes.Add(dvbcnode);
                         break;
                     case TunerType.Satellite:
-                        servernode.Nodes.Add("Satellite");
+                        var dvbsnode = new TreeNode("DVBS Tuner");
+                        dvbsnode.Tag = "Satellite";
+                        servernode.Nodes.Add(dvbsnode);
                         break;
                     case TunerType.Terrestrial:
-                        servernode.Nodes.Add("Terrestrial");
+                        var dvbtnode = new TreeNode("DVBT Tuner");
+                        dvbtnode.Tag = "Terrestrial";
+                        servernode.Nodes.Add(dvbtnode);
                         break;
                 }                
             }
@@ -85,11 +93,45 @@ namespace SatIp
 
         private void treeView1_AfterSelect(object sender, TreeViewEventArgs e)
         {
-            var device = (SatIpDevice)ssdp.FindByUDN(e.Node.Name);
-            if (device != null)
+            panel1.Controls.Clear();
+            if(e.Node.Tag != null && e.Node.Tag is "Root")
             {
-                Form2 frm = new Form2(device);
-                frm.ShowDialog();
+                var projectinfo = new ProjectInformation();
+                panel1.Controls.Add(projectinfo);
+                label1.Text = "Sat>Ip Project";
+            }
+            else if (e.Node.Tag != null && e.Node.Tag is SatIpDevice)
+            {
+                var device = ssdp.FindByUDN(e.Node.Name);
+                if (device != null)
+                {
+                    var deviceinfo = new DeviceInformation(device);
+                    label1.Text = e.Node.Text;
+                    panel1.Controls.Add(deviceinfo);
+                    //TransponderScan frm = new TransponderScan(device);
+                    //frm.ShowDialog();
+                }
+            }
+            else if (e.Node.Tag != null && e.Node.Tag is "Cable")
+            {
+                var device = ssdp.FindByUDN(e.Node.Parent.Name);
+                var cabinfo = new CableInformation(device);
+                panel1.Controls.Add(cabinfo);
+                label1.Text = string.Format("{0} - {1}", device.FriendlyName, e.Node.Text);
+            }
+            else if (e.Node.Tag != null && e.Node.Tag is "Satellite")
+            {
+                var device = ssdp.FindByUDN(e.Node.Parent.Name);
+                var satinfo = new SatelliteInformation(device);
+                panel1.Controls.Add(satinfo);
+                label1.Text = string.Format("{0} - {1}", device.FriendlyName, e.Node.Text);
+            }
+            else if (e.Node.Tag != null && e.Node.Tag is "Terrestrial")
+            {
+                var device = ssdp.FindByUDN(e.Node.Parent.Name);
+                var terinfo = new TerrestrialInformation(device);
+                panel1.Controls.Add(terinfo);
+                label1.Text = string.Format("{0} - {1}", device.FriendlyName, e.Node.Text);
             }
         }
 

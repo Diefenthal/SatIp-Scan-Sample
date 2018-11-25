@@ -34,6 +34,7 @@ namespace SatIp
         private static readonly Regex RegexRtspSessionHeader = new Regex(@"\s*([^\s;]+)(;timeout=(\d+))?");
         private const int DefaultRtspSessionTimeout = 30;    // unit = s
         private static readonly Regex RegexDescribeResponseSignalInfo = new Regex(@";tuner=\d+,(\d+),(\d+),(\d+),", RegexOptions.Singleline | RegexOptions.IgnoreCase);
+        //private static readonly Regex RegexDescribeResponseSignalInfo= new Regex("a=fmtp:33\\s+ver=(\\d+)\\.(\\d+);src=(\\d+);tuner=(\\d+),(\\d+),(\\d+),(\\d+),.*");
         private string _address;
         /// <summary>
         /// The current RTSP session ID. Used in the header of all RTSP messages
@@ -87,6 +88,7 @@ namespace SatIp
         private bool _disposed = false;
         private RtpListener _rtpListener;
         private RtcpListener _rtcpListener;
+
         #endregion
 
         #region Constructor
@@ -646,7 +648,7 @@ namespace SatIp
                 quality = int.Parse(m.Groups[3].Captures[0].Value) * 100 / 15;   // quality: 0..15 => 0..100
 
             }
-            OnSignalInfo(new SignalInfoArgs(locked, level, quality));
+            OnRecieptionInfoChanged(new RecieptionInfoArgs(locked, level, quality));
             /*              
                 v=0
                 o=- 1378633020884883 1 IN IP4 192.168.2.108
@@ -696,7 +698,8 @@ namespace SatIp
         #region Public Events
 
         public event PropertyChangedEventHandler PropertyChanged;
-
+        public event RecieptionInfoChangedEventHandler RecieptionInfoChanged;
+        public event TsPacketHandler TsPacket;
         #endregion
 
         #region Protected Methods
@@ -725,7 +728,7 @@ namespace SatIp
                     level = int.Parse(m.Groups[1].Captures[0].Value) * 100 / 255;    // level: 0..255 => 0..100
                     quality = int.Parse(m.Groups[3].Captures[0].Value) * 100 / 15;   // quality: 0..15 => 0..100
                 }
-                OnSignalInfo(new SignalInfoArgs(locked, level, quality));
+                OnRecieptionInfoChanged(new RecieptionInfoArgs(locked, level, quality));
             }
             else if (e.Packet is RtcpByePacket)
             {
@@ -736,7 +739,8 @@ namespace SatIp
         {
             if ((e.Packet.HasPayload) && (e.Packet.PayloadType == 33))
             {
-                OnTsData(new TsDataArgs(e.Packet.Payload));
+                
+                OnTsPacketRecieved(new TsPacketArgs(e.Packet.Payload));
             }
         }
         #endregion
@@ -759,41 +763,41 @@ namespace SatIp
             }
             _disposed = true;
         }
-        protected void OnSignalInfo(SignalInfoArgs args)
+
+       
+        protected void OnRecieptionInfoChanged(RecieptionInfoArgs args)
         {
-            if (SignalInfo != null)
+            if (RecieptionInfoChanged != null) RecieptionInfoChanged(this, args);
+        }
+        protected void OnTsPacketRecieved(TsPacketArgs args)
+        {
+            if (TsPacket != null)
             {
-                SignalInfo(this, args);
+                TsPacket(this, args);
             }
         }
-        protected void OnTsData(TsDataArgs args)
+        
+        public delegate void TsPacketHandler(object sender, TsPacketArgs e);       
+        public delegate void RecieptionInfoChangedEventHandler(object sender, RecieptionInfoArgs e);
+
+        public class RecieptionInfoArgs : EventArgs
         {
-            if (TsData != null)
-            {
-                TsData(this, args);
-            }
-        }
-        public delegate void SignalInfoHandler(object sender, SignalInfoArgs e);
-        public delegate void TsDataHandler(object sender, TsDataArgs e);
-        public event SignalInfoHandler SignalInfo;
-        public event TsDataHandler TsData;
-        public class SignalInfoArgs : EventArgs
-        {
-            public bool Locked { get; private set; }
-            public int Level { get; private set; }
-            public int Quality { get; private set; }
-            public SignalInfoArgs(bool locked, int level, int quality)
+            public RecieptionInfoArgs(bool locked, int level, int quality)
             {
                 Locked = locked;
                 Level = level;
                 Quality = quality;
             }
+
+            public bool Locked { get; }
+            public int Level { get; }
+            public int Quality { get; }
         }
-        public class TsDataArgs : EventArgs
+        public class TsPacketArgs : EventArgs
         {
             public byte[] Buffer { get; private set; }
 
-            public TsDataArgs(byte[] buffer)
+            public TsPacketArgs(byte[] buffer)
             {
                 Buffer = buffer;
 

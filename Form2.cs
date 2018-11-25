@@ -384,7 +384,7 @@ namespace SatIp
                         {
                             _udpclient = new UdpClient(_device.RtspSession.RtpPort);
                             _remoteEndPoint = new IPEndPoint(IPAddress.Any, 0);
-                            _device.RtspSession.SignalInfo += new RtspSession.SignalInfoHandler(RtspSession_SignalInfo);
+                            //_device.RtspSession.SignalInfo += new RtspSession.SignalInfoHandler(RtspSession_SignalInfo);
 
                         }
                         else
@@ -513,12 +513,12 @@ namespace SatIp
         }
 
 
-        void RtspSession_SignalInfo(object sender, RtspSession.SignalInfoArgs e)
-        {
-            SetControlPropertyThreadSafe(pgbSignalLevel, "Value", e.Level);
-            SetControlPropertyThreadSafe(pgbSignalQuality, "Value", e.Quality);
-            _locked = e.Locked;
-        }
+        //void RtspSession_SignalInfo(object sender, RtspSession.SignalInfoArgs e)
+        //{
+        //    SetControlPropertyThreadSafe(pgbSignalLevel, "Value", e.Level);
+        //    SetControlPropertyThreadSafe(pgbSignalQuality, "Value", e.Quality);
+        //    _locked = e.Locked;
+        //}
 
 
         private void AddResults(Channel chan)
@@ -620,5 +620,13 @@ namespace SatIp
         public int ProgramClockReferenceId;
         public int VideoId;
 
+        public object VideoPid { get; internal set; }
+        public object AudioPid { get; internal set; }
+        public object AC3Pid { get; internal set; }
+        public object EAC3Pid { get; internal set; }
+        public object AACPid { get; internal set; }
+        public object DTSPid { get; internal set; }
+        public object TTXPid { get; internal set; }
+        public object SubTitlePid { get; internal set; }
     }
 }

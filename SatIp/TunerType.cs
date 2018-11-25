@@ -14,22 +14,12 @@
     You should have received a copy of the GNU General Public License
     along with SatIp.  If not, see <http://www.gnu.org/licenses/>.
 */
-
 namespace SatIp
 {
-    internal class TerrestrialTuner : Tuner
+    public enum TunerType
     {
-        private string location;
-
-        public TerrestrialTuner()
-        {
-        }
-
-        public TerrestrialTuner(string location)
-        {
-            this.location = location;
-        }
-
-        public override TunerType Type => TunerType.Terrestrial;
+        Cable,
+        Satellite,
+        Terrestrial
     }
 }
