@@ -222,11 +222,11 @@ namespace SatIp.Usercontrols
 
                         if (strArray[4] == "S2")
                         {
-                            tuning = string.Format("src={0}&freq={1}&pol={2}&sr={3}&fec={4}&msys=dvbs2&mtype={5}&plts=on&ro=0.35&pids=0", source, strArray[0].ToString(), strArray[1].ToLower().ToString(), strArray[2].ToLower().ToString(), strArray[3].ToString(), strArray[5].ToLower().ToString());
+                            tuning = string.Format("src={0}&freq={1}&pol={2}&sr={3}&fec={4}&msys=dvbs2&mtype={5}&plts=on&ro=0.35&pids=3", source, strArray[0].ToString(), strArray[1].ToLower().ToString(), strArray[2].ToLower().ToString(), strArray[3].ToString(), strArray[5].ToLower().ToString());
                         }
                         else
                         {
-                            tuning = string.Format("src={0}&freq={1}&pol={2}&sr={3}&fec={4}&msys=dvbs&mtype={5}&pids=0", source, strArray[0].ToString(), strArray[1].ToLower().ToString(), strArray[2].ToString(), strArray[3].ToString(), strArray[5].ToLower().ToString());
+                            tuning = string.Format("src={0}&freq={1}&pol={2}&sr={3}&fec={4}&msys=dvbs&mtype={5}&pids=3", source, strArray[0].ToString(), strArray[1].ToLower().ToString(), strArray[2].ToString(), strArray[3].ToString(), strArray[5].ToLower().ToString());
                         }
 
                         RtspStatusCode statuscode;
@@ -251,12 +251,13 @@ namespace SatIp.Usercontrols
                         {
                             _device.RtspSession.Play(tuning);
                         }
-
+                        Thread.Sleep(5000);
                         /* Say the Sat>IP server we want Receives the Recieption Details SDP */
                         statuscode = _device.RtspSession.Describe();
 
                         if (_locked)
                         {
+                            
 
                             /* Say the Sat>IP server we want Receives the ProgramAssociationTable */
                             //_device.RtspSession.Play("&addpids=0");                        
@@ -341,7 +342,7 @@ namespace SatIp.Usercontrols
 
                                 AddResults(chan);
                             }
-                            Thread.Sleep(500);
+                            Thread.Sleep(5000);
 
                         }
                         Index++;
@@ -424,6 +425,7 @@ namespace SatIp.Usercontrols
             bool retval = false;
             while (!retval)
             {
+                Thread.Sleep(5000);
                 var receivedbytes = client.Receive(ref endpoint);
                 RtpPacket h = RtpPacket.Decode(receivedbytes);
                 if ((receivedbytes.Length > 12) && ((receivedbytes.Length - 12) % 188) == 0)
@@ -452,6 +454,7 @@ namespace SatIp.Usercontrols
             bool retval = false;
             while (!retval)
             {
+                Thread.Sleep(5000);
                 var receivedbytes = client.Receive(ref endpoint);
                 RtpPacket h = RtpPacket.Decode(receivedbytes);
                 if ((receivedbytes.Length > 12) && ((receivedbytes.Length - 12) % 188) == 0)
@@ -479,6 +482,7 @@ namespace SatIp.Usercontrols
             bool retval = false;
             while (!retval)
             {
+                Thread.Sleep(5000);
                 var receivedbytes = client.Receive(ref endpoint);
                 RtpPacket h = RtpPacket.Decode(receivedbytes);
                 if ((receivedbytes.Length > 12) && ((receivedbytes.Length - 12) % 188) == 0)
@@ -506,6 +510,7 @@ namespace SatIp.Usercontrols
             bool retval = false;
             while (!retval)
             {
+                Thread.Sleep(5000);
                 var receivedbytes = client.Receive(ref endpoint);
                 RtpPacket h = RtpPacket.Decode(receivedbytes);
 

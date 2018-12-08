@@ -476,7 +476,7 @@ namespace SatIp
                         {
                             Channel chan = new Channel();                         
                             
-                            chan.Frequency = nit.GetNetworkInformation(pat.TransportStreamId).Frequency;
+                            //chan.Frequency = nit.GetNetworkInformation(pat.TransportStreamId).Frequency;
                             chan.ServiceType = sdt.GetServiceDescription(serviceid).ServiceType;
                             chan.ServiceName = sdt.GetServiceDescription(serviceid).ServiceName;
                             chan.ServiceProvider = sdt.GetServiceDescription(serviceid).ProviderName;

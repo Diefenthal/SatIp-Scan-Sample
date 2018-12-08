@@ -46,7 +46,7 @@ namespace SatIp
             }
         }
 
-        
+
         public void OnNewSection(TsSection section)
         {
             TransportStreamId = section.table_id_extension;
@@ -75,6 +75,12 @@ namespace SatIp
         public void OnTsPacket(byte[] tsPacket)
         {
             _sectionDecoder.OnTsPacket(tsPacket);
+        }
+        public void Reset()
+        {
+            
+            IsReady = false;
+            
         }
     }
 }

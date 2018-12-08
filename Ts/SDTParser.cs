@@ -79,70 +79,76 @@ namespace SatIp
                 _serviceDescription.FreeCaMode = (((section.Data[offset + 3] >> 4) & 0x01) != 0);
                 var DescriptorsLoopLength = (ushort)(((section.Data[offset + 3] << 8) | section.Data[offset + 4]) & 0xfff);
                 offset += 5;
-                int descOffset = offset;
-                offset += DescriptorsLoopLength;
-                while (descOffset < offset)
+                int descOffset = 0;
+                //offset += DescriptorsLoopLength;
+                while (descOffset < DescriptorsLoopLength)
                 {
-                    var descriptor_tag = section.Data[descOffset];
-                    var descriptor_length = section.Data[descOffset];
-                    switch (descriptor_tag)
-                    {
-                        case 0x42: // stuffing_descriptor
-                            break;
-                        case 0x48: // service_descriptor
-                            ReadServiceDescriptor(section.Data, descOffset + 2);
-                            break;
-                        case 0x49: // country_availability_descriptor
-                            break;
-                        case 0x4A: // linkage_descriptor
-                            ReadLinkageDescriptor(section.Data, descOffset + 2, descriptor_length);
-                            break;
-                        case 0x4B: // NVOD_reference_descriptor
-                            break;
-                        case 0x4C: // time_shifted_service_descriptor
-                            break;
-                        case 0x50: // component_descriptor
-                            ReadComponentDescriptor(section.Data, descOffset + 2, descriptor_length);
-                            break;
-                        case 0x51: // mosaic_descriptor
-                            break;
-                        case 0x53: // CA_identifier_descriptor
-                            ReadCAIdentifierDescriptor(section.Data, descOffset + 2, descriptor_length);
-                            break;
-                        case 0x57: // telephone_descriptor
-                            break;
-                        case 0x5D: // multilingual_service_name_descriptor
-                            break;
-                        case 0x5F: // private_data_specifier_descriptor
-                            ReadPrivateDataSpecifierDescriptor(section.Data, descOffset + 2, descriptor_length);
-                            break;
-                        case 0x64: // data_broadcast_descriptor
-                            break;
-                        case 0x6E: // announcement_support_descriptor
-                            break;
-                        case 0x71: // service_identifier_descriptor
-                            break;
-                        case 0x72: // service_availability_descriptor
-                            break;
-                        case 0x73: // default_authority_descriptor
-                            break;
-                        case 0x7D: // XAIT location descriptor
-                            break;
-                        case 0x7E: // FTA_content_management_descriptor
-                            break;
-                        case 0x7F: // extension descriptor
-                            break;
-                        default:
-                            Console.WriteLine("SDT Descriptor UNKNOWN: 0x{0:X2}", descriptor_tag);
-                            break;
+                    var descriptor_tag = section.Data[offset + descOffset];
+                    var descriptor_length = section.Data[offset + descOffset];
+                    if(DescriptorsLoopLength >0)
+                    { 
+                        switch (descriptor_tag)
+                        {
+                            case 0x42: // stuffing_descriptor
+                                break;
+                            case 0x48: // service_descriptor
+                                ReadServiceDescriptor(section.Data, offset + descOffset + 2);
+                                break;
+                            case 0x49: // country_availability_descriptor
+                                break;
+                            case 0x4A: // linkage_descriptor
+                                ReadLinkageDescriptor(section.Data, offset + descOffset + 2, descriptor_length);
+                                break;
+                            case 0x4B: // NVOD_reference_descriptor
+                                break;
+                            case 0x4C: // time_shifted_service_descriptor
+                                break;
+                            case 0x50: // component_descriptor
+                                ReadComponentDescriptor(section.Data, offset + descOffset + 2, descriptor_length);
+                                break;
+                            case 0x51: // mosaic_descriptor
+                                break;
+                            case 0x53: // CA_identifier_descriptor
+                                ReadCAIdentifierDescriptor(section.Data, offset + descOffset + 2, descriptor_length);
+                                break;
+                            case 0x57: // telephone_descriptor
+                                break;
+                            case 0x5D: // multilingual_service_name_descriptor
+                                break;
+                            case 0x5F: // private_data_specifier_descriptor
+                                ReadPrivateDataSpecifierDescriptor(section.Data, offset + descOffset + 2, descriptor_length);
+                                break;
+                            case 0x64: // data_broadcast_descriptor
+                                break;
+                            case 0x6E: // announcement_support_descriptor
+                                break;
+                            case 0x71: // service_identifier_descriptor
+                                break;
+                            case 0x72: // service_availability_descriptor
+                                break;
+                            case 0x73: // default_authority_descriptor
+                                break;
+                            case 0x7D: // XAIT location descriptor
+                                break;
+                            case 0x7E: // FTA_content_management_descriptor
+                                break;
+                            case 0x7F: // extension descriptor
+                                break;
+                            default:
+                                Console.WriteLine("SDT Descriptor UNKNOWN: 0x{0:X2}", descriptor_tag);
+                                break;
+                        }
+                        descOffset += descriptor_length + 2;
                     }
-                    descOffset += descriptor_length + 2;
+                
                 }
                 if (!_serviceDescriptions.ContainsKey(_serviceDescription.ServiceID))
                 {
                     _serviceDescriptions.Add(_serviceDescription.ServiceID, _serviceDescription);
                 }
+                offset += DescriptorsLoopLength;
             }
+            
             IsReady = true;
         }
 

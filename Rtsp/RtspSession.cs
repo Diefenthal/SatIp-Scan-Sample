@@ -739,7 +739,26 @@ namespace SatIp
         {
             if ((e.Packet.HasPayload) && (e.Packet.PayloadType == 33))
             {
-                
+                if (((e.Packet.Payload.Length - 12) % 188) == 0)
+                {
+                    double num9 = (((double)(e.Packet.Payload.Length - 12)) / 188.0) - 1.0;
+                    for (double j = 0.0; j <= num9; j++)
+                    {
+
+                        byte[] tspacketbytes = (byte[])Array.CreateInstance(typeof(byte), 188);
+                        Array.Copy(e.Packet.Payload, (int)Math.Round((double)(12.0 + (j * 188))), tspacketbytes, 0, 188);
+                        TsHeader header = TsHeader.Decode(tspacketbytes);
+                        if(header.Pid==0)
+                        { }
+
+                        //pat.OnTsPacket(destinationarray);
+                        //if (pat.IsReady)
+                        //{
+                        //    retval = true;
+                        //}
+
+                    }
+                }
                 OnTsPacketRecieved(new TsPacketArgs(e.Packet.Payload));
             }
         }

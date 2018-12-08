@@ -98,6 +98,7 @@
     <Compile Include="Ts\PMTParser.cs" />
     <Compile Include="Ts\SDTParser.cs" />
     <Compile Include="Ts\TsHeader.cs" />
+    <Compile Include="Ts\TsPacket.cs" />
     <Compile Include="Ts\TsSection.cs" />
     <Compile Include="Ts\TsSectionDecoder.cs" />
     <Compile Include="SatIp\TunerType.cs" />
