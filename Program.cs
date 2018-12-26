@@ -31,7 +31,7 @@ namespace SatIp.Scan
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new DevicesForm());
+            Application.Run(new MainForm());
         }
     }
 }

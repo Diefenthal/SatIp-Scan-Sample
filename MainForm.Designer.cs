@@ -16,7 +16,7 @@
 */
 namespace SatIp
 {
-    partial class DevicesForm
+    partial class MainForm
     {
         /// <summary>
         /// Required designer variable.
@@ -78,7 +78,7 @@ namespace SatIp
             this.label1.TabIndex = 2;
             this.label1.Text = "label1";
             // 
-            // DevicesForm
+            // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -87,9 +87,9 @@ namespace SatIp
             this.Controls.Add(this.label1);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.treeView1);
-            this.Name = "DevicesForm";
-            this.Text = "Form1";
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.DevicesForm_FormClosing);
+            this.Name = "MainForm";
+            this.Text = "MainForm";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
             this.ResumeLayout(false);
 
         }

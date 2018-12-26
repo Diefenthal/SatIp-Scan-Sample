@@ -20,11 +20,11 @@ using SatIp.Usercontrols;
 
 namespace SatIp
 {
-    public partial class DevicesForm : Form
-    {
+    public partial class MainForm : Form
+    {        
         private SSDPClient ssdp = null;   
         
-        public DevicesForm()
+        public MainForm()
         {
             InitializeComponent();
             Logger.SetLogFilePath("Sample.log", Settings.Default.LogLevel);
@@ -135,7 +135,7 @@ namespace SatIp
             }
         }
 
-        private void DevicesForm_FormClosing(object sender, FormClosingEventArgs e)
+        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             ssdp.Dispose();
             ssdp.DeviceFound -= new SSDPClient.DeviceFoundHandler(DeviceFound);

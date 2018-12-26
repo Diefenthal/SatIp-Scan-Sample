@@ -24,11 +24,7 @@ namespace SatIp.Usercontrols
         private Thread _scanThread;
         private bool _locked;
         private IPEndPoint _remoteEndPoint;
-        private UdpClient _udpclient;
-        private bool patfound;
-        private bool pmtsfound;
-        private bool nitfound;
-        private bool sdtfound;
+        private UdpClient _udpclient;        
         private PATParser pat;
         private PMTParser pmt;
         private SDTParser sdt;
@@ -264,9 +260,7 @@ namespace SatIp.Usercontrols
                                 _device.RtspSession.Play(string.Format("&addpids={0}", i.Value));
                                 GetPMT(_udpclient, _remoteEndPoint, (short)i.Value, out pmt);
                                 /* Say the Sat>IP server we want not more Receives the ProgramMapTable for Pid x */
-                                _device.RtspSession.Play(string.Format("&delpids={0}", i.Value));
-                                /* Add the ProgramMapTable for Pid x into the Dictionary */
-                                //pmts.Add(pmt.ProgramNumber, pmt);
+                                _device.RtspSession.Play(string.Format("&delpids={0}", i.Value));                               
                             }
                         }
                         /*Now we had in the best case the ProgramAssociationTable, NetworkInformationTable, the ProgramMapTables for each 
@@ -313,7 +307,7 @@ namespace SatIp.Usercontrols
                             chan.Scrambled = sdt.GetServiceDescription(serviceid).FreeCaMode;
                             AddResults(chan);
                         }
-                        Thread.Sleep(5000);
+                        Thread.Sleep(500);
                     }
                     Index++;                    
                 }                
@@ -356,14 +350,14 @@ namespace SatIp.Usercontrols
                 string[] items =
                 {
                     chan.Frequency.ToString(),
-                        chan.ServiceType.ToString(),
-                        chan.ServiceName,
-                        chan.ServiceProvider,
-                        chan.ServiceId.ToString(),
-                        chan.Schedule.ToString(),
-                        chan.PresentFollow.ToString(),
-                        chan.Status.ToString(),
-                        chan.Scrambled.ToString()
+                    chan.ServiceType.ToString(),
+                    chan.ServiceName,
+                    chan.ServiceProvider,
+                    chan.ServiceId.ToString(),
+                    chan.Schedule.ToString(),
+                    chan.PresentFollow.ToString(),
+                    chan.Status.ToString(),
+                    chan.Scrambled.ToString()
                 };
                 var lstItem = new ListViewItem(items)
                 {
