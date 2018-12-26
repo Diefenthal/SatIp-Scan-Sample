@@ -93,6 +93,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TransmissionMode.cs" />
+    <Compile Include="Ts\ElementaryStream.cs" />
     <Compile Include="Ts\NITParser.cs" />
     <Compile Include="Ts\PATParser.cs" />
     <Compile Include="Ts\PMTParser.cs" />
@@ -171,6 +172,9 @@
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="TuningData\Cable\Cable.ini">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="TuningData\Satellite\0030.ini">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -691,16 +695,16 @@
     <Compile Include="Rtsp\RtspStatusCode.cs" />
     <Compile Include="SatIp\SatIpDevice.cs" />
     <Compile Include="Ssdp\SSDPClient.cs" />
+    <None Include="TuningData\Terrestrial\Bonn.ini">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\dvb-t.png" />
     <None Include="Resources\dvb-s.png" />
     <None Include="Resources\dvb-c.png" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="TuningData\Cable\" />
-    <Folder Include="TuningData\Terrestrial\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

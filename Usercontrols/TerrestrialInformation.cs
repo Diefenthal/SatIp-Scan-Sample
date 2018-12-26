@@ -94,172 +94,151 @@ namespace SatIp.Usercontrols
             foreach (var mapping in _mappings)
             {
                 IniReader reader = new IniReader(mapping.Mapping.File);
-                var Count = reader.ReadInteger("DVB", "0", 0);
-                try
+                var Count = reader.ReadInteger("DVB", "0", 0);                
+                var Index = 1;
+                string source = mapping.Source;
+                string tuning;
+                while (Index <= Count)
                 {
-                    var Index = 1;
-                    string source = mapping.Source;
-                    string tuning;
-                    while (Index <= Count)
+                    SetControlPropertyThreadSafe(lblPAT, "BackColor", Color.LimeGreen);
+                    SetControlPropertyThreadSafe(lblPMT, "BackColor", Color.LimeGreen);
+                    SetControlPropertyThreadSafe(lblNIT, "BackColor", Color.LimeGreen);
+                    SetControlPropertyThreadSafe(lblSDT, "BackColor", Color.LimeGreen);
+                    Dictionary<int, PMTParser> pmtTables = new Dictionary<int, PMTParser>();
+                    if (_stopScanning) return;
+                    float percent = ((float)(Index)) / Count;
+                    percent *= 100f;
+                    if (percent > 100f) percent = 100f;
+                    SetControlPropertyThreadSafe(pgbSearchResult, "Value", (int)percent);
+                    string[] strArray = reader.ReadString("DVB", Index.ToString()).Split(new char[] { ',' });
+
+                    if (strArray[2] == "T2")
                     {
-                        SetControlPropertyThreadSafe(lblPAT, "BackColor", Color.LimeGreen);
-                        SetControlPropertyThreadSafe(lblPMT, "BackColor", Color.LimeGreen);
-                        SetControlPropertyThreadSafe(lblNIT, "BackColor", Color.LimeGreen);
-                        SetControlPropertyThreadSafe(lblSDT, "BackColor", Color.LimeGreen);
-                        Dictionary<int, PMTParser> pmtTables = new Dictionary<int, PMTParser>();
-                        if (_stopScanning) return;
-                        float percent = ((float)(Index)) / Count;
-                        percent *= 100f;
-                        if (percent > 100f) percent = 100f;
-                        SetControlPropertyThreadSafe(pgbSearchResult, "Value", (int)percent);
-                        string[] strArray = reader.ReadString("DVB", Index.ToString()).Split(new char[] { ',' });
+                        //   514,8,T2,16K,64QAM,19128,35
+                        // frequency,bandwith,modulationsystem, modulationtype, guardintervall,fec
+                        //tuning = string.Format("freq={0}&bw={1}&msys={2}&pids=0,17",
+                        //    strArray[0].ToString(), strArray[1].ToString(), "dvbt2");
+                        tuning = string.Format("freq={0}&bw={1}&msys=dvbt2&pids=0",
+                            strArray[0].ToString(), strArray[1].ToLower().ToString(), "dvbt2");
+                    }
+                    else
+                    {
+                        // frequency,bandwith,modulationsystem, modulationtype, guardintervall,fec
+                        tuning = string.Format("freq={0}&bw={1}&msys={2}&tmode=2k&mtype={3}&gi={4}&fec={5}&pids=0,17",
+                            strArray[0].ToString(), strArray[1].ToLower().ToString(), strArray[2].ToString(), strArray[3].ToString(), strArray[4].ToLower().ToString(), strArray[5].ToString());
+                    }
 
-                        if (strArray[2] == "T2")
-                        {
-                            // frequency,bandwith,modulationsystem, modulationtype, guardintervall,fec
-                            tuning = string.Format("freq={0}&bw={1}&msys={2}&tmode={3}&mtype={4}&gi={5}&fec={6}&pids=0",
-                                strArray[0].ToString(), strArray[1].ToString(), strArray[2].ToLower().ToString(), strArray[3].ToString(), strArray[4].ToString(), strArray[5].ToString(), strArray[6].ToString());
-                        }
-                        else
-                        {
-                            // frequency,bandwith,modulationsystem, modulationtype, guardintervall,fec
-                            tuning = string.Format("freq={0}&bw={1}&msys={2}&tmode=2k&mtype={3}&gi={4}&fec={5}&pids=0",
-                                strArray[0].ToString(), strArray[1].ToLower().ToString(), strArray[2].ToString(), strArray[3].ToString(), strArray[4].ToLower().ToString(), strArray[5].ToString());
-                        }
+                    RtspStatusCode statuscode;
+                    if (string.IsNullOrEmpty(_device.RtspSession.RtspSessionId))
+                    {
 
-                        RtspStatusCode statuscode;
-                        if (string.IsNullOrEmpty(_device.RtspSession.RtspSessionId))
+                        //_device.RtspSession.Options();
+                        _device.RtspSession.Setup(tuning, TransmissionMode.Unicast);
+                        _device.RtspSession.Play(string.Empty);
+                        _udpclient = new UdpClient(_device.RtspSession.RtpPort);
+                        _remoteEndPoint = new IPEndPoint(IPAddress.Any, 0);
+                        _device.RtspSession.RecieptionInfoChanged += RtspSession_RecieptionInfoChanged;                      
+
+                        ////}
+                        //else
+                        //{
+                        //    var message = GetMessageFromStatuscode(statuscode);
+                        //    MessageBox.Show(String.Format("Setup retuns {0}", message), statuscode.ToString(), MessageBoxButtons.OK);
+                        //}
+                        
+                    }
+                    else
+                    {
+                        _device.RtspSession.Play(tuning);
+                    }
+                    _device.RtspSession.Play(tuning);
+                    /* Say the Sat>IP server we want Receives the Recieption Details SDP */
+                    statuscode = _device.RtspSession.Describe();
+                    Thread.Sleep(5000);
+                    if (_locked)
+                    {                            
+                        /* Say the Sat>IP server we want Receives the ProgramAssociationTable */
+                        //_device.RtspSession.Play("&addpids=0");                        
+
+                        GetPAT(_udpclient, _remoteEndPoint, out pat);
+                        /* Say the Sat>IP server we want not more Receives the ProgramAssociationTable */
+                        _device.RtspSession.Play("&delpids=0");
+
+                        /* Loop the ProgramAssociationTable Programs */
+                        foreach (var i in pat.Programs)
                         {
-                            statuscode = _device.RtspSession.Setup(tuning, TransmissionMode.Unicast);
-                            if (statuscode.Equals(RtspStatusCode.Ok))
+                            if (i.Key == 0)
                             {
-                                _udpclient = new UdpClient(_device.RtspSession.RtpPort);
-                                _remoteEndPoint = new IPEndPoint(IPAddress.Any, 0);
-                                _device.RtspSession.RecieptionInfoChanged += new RtspSession.RecieptionInfoChangedEventHandler(RtspSession_RecieptionInfoChanged);
-
+                                /* Say the Sat>IP server we want Receives the NetworkinformationTable  */
+                                _device.RtspSession.Play(string.Format("&addpids={0}", i.Value));
+                                GetNIT(_udpclient, _remoteEndPoint, pat.TransportStreamId, out nit);
+                                /* Say the Sat>IP server we want not more Receives the NetworkInformationTable */
+                                _device.RtspSession.Play(string.Format("&delpids={0}", i.Value));
                             }
                             else
                             {
-                                var message = GetMessageFromStatuscode(statuscode);
-                                MessageBox.Show(String.Format("Setup retuns {0}", message), statuscode.ToString(), MessageBoxButtons.OK);
+                                /* Say the Sat>IP server we want Receives the ProgramMapTable for Pid x */
+                                _device.RtspSession.Play(string.Format("&addpids={0}", i.Value));
+                                GetPMT(_udpclient, _remoteEndPoint, (short)i.Value, out pmt);
+                                /* Say the Sat>IP server we want not more Receives the ProgramMapTable for Pid x */
+                                _device.RtspSession.Play(string.Format("&delpids={0}", i.Value));
+                                /* Add the ProgramMapTable for Pid x into the Dictionary */
+                                //pmts.Add(pmt.ProgramNumber, pmt);
                             }
-                            _device.RtspSession.Play(tuning);
                         }
-                        else
+                        /*Now we had in the best case the ProgramAssociationTable, NetworkInformationTable, the ProgramMapTables for each 
+                            * in ProgramAssociationTable referenced Program and need now the ServiceDescription Table
+                            * Say the Sat>IP server we want Receives the ServiceDescriptionTable */
+                        _device.RtspSession.Play("&addpids=17");
+
+                        GetSDT(_udpclient, _remoteEndPoint, out sdt);
+                        /* Say the Sat>IP server we want not more Receives the ServiceDescriptionTable */
+                        _device.RtspSession.Play(string.Format("&delpids={0}", 17));
+                        /* 
+                            * From the ServiceDescriptionTable get we the
+                            * Service ID                         
+                            * ServiceName
+                            * ServiceType
+                            * ServiceProvider
+                            * If the Service is Scrambled or Not
+                            */
+                        /* From ProgramMapTable get we 
+                            * ProgramClockReference (PCRPID)
+                            * Video PID
+                            * one or more Audio PIDS
+                            * Teletext PID
+                            * SubTitle PID
+                            */
+                        /* The Service Object should contain follow fields
+                            * Tuning Informations see Sat>Ip Specification 
+                            * all ServiceDescription Fields 
+                            * all ProgramMapTable Fields                        
+                            */
+                        /* add something to the Listview To inform the User what is found  */
+                        int[] serviceids = sdt.Services;
+                        foreach (int serviceid in serviceids)
                         {
-                            _device.RtspSession.Play(tuning);
+                            Channel chan = new Channel();
+
+                            //chan.Frequency = nit.GetNetworkInformation(sdt.TransportStreamId).Frequency;
+                            chan.ServiceType = sdt.GetServiceDescription(serviceid).ServiceType;
+                            chan.ServiceName = sdt.GetServiceDescription(serviceid).ServiceName;
+                            chan.ServiceProvider = sdt.GetServiceDescription(serviceid).ProviderName;
+                            chan.ServiceId = sdt.GetServiceDescription(serviceid).ServiceID;
+                            chan.Schedule = sdt.GetServiceDescription(serviceid).EitScheduleFlag;
+                            chan.PresentFollow = sdt.GetServiceDescription(serviceid).EitPresentFollowingFlag;
+                            chan.Status = sdt.GetServiceDescription(serviceid).RunningStatus;
+                            chan.Scrambled = sdt.GetServiceDescription(serviceid).FreeCaMode;
+
+                            AddResults(chan);
                         }
-
-                        /* Say the Sat>IP server we want Receives the Recieption Details SDP */
-                        statuscode = _device.RtspSession.Describe();
-
-                        if (_locked)
-                        {
-
-                            /* Say the Sat>IP server we want Receives the ProgramAssociationTable */
-                            //_device.RtspSession.Play("&addpids=0");                        
-
-                            GetPAT(_udpclient, _remoteEndPoint, out pat);
-                            /* Say the Sat>IP server we want not more Receives the ProgramAssociationTable */
-                            _device.RtspSession.Play("&delpids=0");
-
-                            /* Loop the ProgramAssociationTable Programs */
-                            foreach (var i in pat.Programs)
-                            {
-                                if (i.Key == 0)
-                                {
-                                    /* Say the Sat>IP server we want Receives the NetworkinformationTable  */
-                                    _device.RtspSession.Play(string.Format("&addpids={0}", i.Value));
-                                    GetNIT(_udpclient, _remoteEndPoint, pat.TransportStreamId, out nit);
-                                    /* Say the Sat>IP server we want not more Receives the NetworkInformationTable */
-                                    _device.RtspSession.Play(string.Format("&delpids={0}", i.Value));
-                                }
-                                else
-                                {
-                                    /* Say the Sat>IP server we want Receives the ProgramMapTable for Pid x */
-                                    _device.RtspSession.Play(string.Format("&addpids={0}", i.Value));
-                                    GetPMT(_udpclient, _remoteEndPoint, (short)i.Value, out pmt);
-                                    /* Say the Sat>IP server we want not more Receives the ProgramMapTable for Pid x */
-                                    _device.RtspSession.Play(string.Format("&delpids={0}", i.Value));
-                                    /* Add the ProgramMapTable for Pid x into the Dictionary */
-                                    //pmts.Add(pmt.ProgramNumber, pmt);
-                                }
-                            }
-                            /*Now we had in the best case the ProgramAssociationTable, NetworkInformationTable, the ProgramMapTables for each 
-                             * in ProgramAssociationTable referenced Program and need now the ServiceDescription Table
-                             * Say the Sat>IP server we want Receives the ServiceDescriptionTable */
-                            _device.RtspSession.Play("&addpids=17");
-
-                            GetSDT(_udpclient, _remoteEndPoint, out sdt);
-                            /* Say the Sat>IP server we want not more Receives the ServiceDescriptionTable */
-                            _device.RtspSession.Play(string.Format("&delpids={0}", 17));
-
-
-
-
-                            /* 
-                             * From the ServiceDescriptionTable get we the
-                             * Service ID                         
-                             * ServiceName
-                             * ServiceType
-                             * ServiceProvider
-                             * If the Service is Scrambled or Not
-                             */
-
-                            /* From ProgramMapTable get we 
-                             * ProgramClockReference (PCRPID)
-                             * Video PID
-                             * one or more Audio PIDS
-                             * Teletext PID
-                             * SubTitle PID
-                             */
-
-                            /* The Service Object should contain follow fields
-                             * Tuning Informations see Sat>Ip Specification 
-                             * all ServiceDescription Fields 
-                             * all ProgramMapTable Fields                        
-                             */
-
-                            /* add something to the Listview To inform the User what is found  */
-
-                            int[] serviceids = sdt.Services;
-                            foreach (int serviceid in serviceids)
-                            {
-                                Channel chan = new Channel();
-
-                                //chan.Frequency = nit.GetNetworkInformation(sdt.TransportStreamId).Frequency;
-                                chan.ServiceType = sdt.GetServiceDescription(serviceid).ServiceType;
-                                chan.ServiceName = sdt.GetServiceDescription(serviceid).ServiceName;
-                                chan.ServiceProvider = sdt.GetServiceDescription(serviceid).ProviderName;
-                                chan.ServiceId = sdt.GetServiceDescription(serviceid).ServiceID;
-                                chan.Schedule = sdt.GetServiceDescription(serviceid).EitScheduleFlag;
-                                chan.PresentFollow = sdt.GetServiceDescription(serviceid).EitPresentFollowingFlag;
-                                chan.Status = sdt.GetServiceDescription(serviceid).RunningStatus;
-                                chan.Scrambled = sdt.GetServiceDescription(serviceid).FreeCaMode;
-
-                                AddResults(chan);
-                            }
-                            Thread.Sleep(500);
-
-                        }
-                        Index++;
-                        //Thread.Sleep(500);
-
+                        Thread.Sleep(5000);
                     }
-                }
-                catch
-                {
-                }
-                finally
-                {
-
-
-
-                }
+                    Index++;    
+                }                
             }
             _device.RtspSession.TearDown();
             SetControlPropertyThreadSafe(pgbSearchResult, "Value", 100);
-
             _isScanning = false;
             SetControlPropertyThreadSafe(btnScan, "Text", "Start Search");
             StopScanThread();
@@ -291,27 +270,24 @@ namespace SatIp.Usercontrols
         }
         private void AddResults(Channel chan)
         {
-            _count++;
-
             if (lwResults.InvokeRequired)
             {
                 lwResults.Invoke(new AddResultDelegate(AddResults), new object[] { chan });
             }
             else
             {
+                _count++;
                 string[] items = new string[]
                 {
                     chan.Frequency.ToString(),
-                        chan.ServiceType.ToString(),
-                        chan.ServiceName,
-                        chan.ServiceProvider,
-                        chan.ServiceId.ToString(),
-                        chan.Schedule.ToString(),
-                        chan.PresentFollow.ToString(),
-                        chan.Status.ToString(),
-                        chan.Scrambled.ToString()
-
-
+                    chan.ServiceType.ToString(),
+                    chan.ServiceName,
+                    chan.ServiceProvider,
+                    chan.ServiceId.ToString(),
+                    chan.Schedule.ToString(),
+                    chan.PresentFollow.ToString(),
+                    chan.Status.ToString(),
+                    chan.Scrambled.ToString()
                 };
                 ListViewItem lstItem = new ListViewItem(items)
                 {
@@ -324,10 +300,11 @@ namespace SatIp.Usercontrols
         }
         private void TerrestrialInformation_Load(object sender, EventArgs e)
         {
-            if ((_device != null) && (_device.SupportsDVBC))
+            if ((_device != null) && (_device.SupportsDVBT))
             {
                 #region DVBSources                
-
+                cbxSourceA.Items.Add("- None -");
+                cbxSourceA.SelectedIndex = 0;
                 var app = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
                 var tuningdata = app + "\\TuningData\\Terrestrial";
 
@@ -339,7 +316,6 @@ namespace SatIp.Usercontrols
                     if (!cbxSourceA.Items.Contains(str4) && (str4 != ""))
                     {
                         cbxSourceA.Items.Add(new IniMapping(str3 + " " + str4, str2));
-
                     }
                 }
 

@@ -533,7 +533,7 @@ namespace SatIp
                 //}
                 if (_rtcpListener == null)
                 {
-                    _rtcpListener = new RtcpListener(_destination, _rtcpPort, transmissionmode);
+                    _rtcpListener = new RtcpListener(Destination, _rtcpPort, transmissionmode);
                     _rtcpListener.PacketReceived += new RtcpListener.PacketReceivedHandler(RtcpPacketReceived);
                     _rtcpListener.StartRtcpListenerThread();
                 }
@@ -634,12 +634,12 @@ namespace SatIp
             }
             SendRequest(request);
             ReceiveResponse(out response);
-            string sessionHeader;
-            if (!response.Headers.TryGetValue("Session", out sessionHeader))
-            {
-                Logger.Error(string.Format("Failed to tune, not able to locate session header in RTSP Describe response"));
-            }
-            ProcessSessionHeader(sessionHeader, "Describe");
+            //string sessionHeader; Onet Problem ????
+            //if (!response.Headers.TryGetValue("Session", out sessionHeader))
+            //{
+            //    Logger.Error(string.Format("Failed to tune, not able to locate session header in RTSP Describe response"));
+            //}
+            //ProcessSessionHeader(sessionHeader, "Describe");
             var m = RegexDescribeResponseSignalInfo.Match(response.Body);
             if (m.Success)
             {
@@ -689,7 +689,8 @@ namespace SatIp
                 _rtcpListener = null;
             }
             StopKeepAliveThread();
-            Disconnect();
+            //Disconnect();
+            _rtspSessionId = string.Empty;
             return response.StatusCode;
         }
 

@@ -10,6 +10,7 @@ using System.Threading;
 using System.Net;
 using System.Net.Sockets;
 using System.Reflection;
+using System.IO;
 
 namespace SatIp.Usercontrols
 {
@@ -47,7 +48,27 @@ namespace SatIp.Usercontrols
 
         private void CableInformation_Load(object sender, EventArgs e)
         {
+            if ((_device != null) && (_device.SupportsDVBC))
+            {
+                #region DVBSources                
+                cbxSourceA.Items.Add("- None -");
+                cbxSourceA.SelectedIndex = 0;
+                var app = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+                var tuningdata = app + "\\TuningData\\Cable";
 
+                foreach (var str2 in Directory.GetFiles(tuningdata))
+                {
+                    IniReader reader = new IniReader(str2);
+                    var str3 = reader.ReadString("CABTYPE", "1");
+                    var str4 = reader.ReadString("CABTYPE", "2");
+                    if (!cbxSourceA.Items.Contains(str4) && (str4 != ""))
+                    {
+                        cbxSourceA.Items.Add(new IniMapping(str3 + " " + str4, str2));
+                    }
+                }
+
+                #endregion
+            }
         }
         
 

@@ -23,8 +23,8 @@ namespace SatIp
     public class PMTParser
     {
         public ushort PcrPID;
-        public int ProgramNumber;       
-        
+        public int ProgramNumber;
+        public List<ElementaryStream> ElementaryStreams;
         public bool IsReady;
         private TsSectionDecoder _sectionDecoder;
         public PMTParser(short pid)
