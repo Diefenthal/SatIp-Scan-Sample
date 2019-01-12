@@ -1,5 +1,5 @@
 ﻿/*  
-    Copyright (C) <2007-2017>  <Kay Diefenthal>
+    Copyright (C) <2007-2019>  <Kay Diefenthal>
 
     SatIp is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -500,7 +500,7 @@ namespace SatIp
                     pointer += descriptor_length;
                     l2 -= descriptor_length;
                     l1 -= descriptor_length;
-                    //_networkInformations.Add(TransportStreamId, netInfo);
+                    _networkInformations.Add(TransportStreamId, netInfo);
                 }
                 //if (netInfo.netType != NetworkType.Unknown)
                 //    baseNode.Text = "NIT " + netInfo.netType.ToString();
