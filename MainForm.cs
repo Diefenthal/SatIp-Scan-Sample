@@ -27,7 +27,7 @@ namespace SatIp
         public MainForm()
         {
             InitializeComponent();
-            Logger.SetLogFilePath("Sample.log", Settings.Default.LogLevel);
+            Logger.SetLogFilePath("SatIp Scan Sample.log", Settings.Default.LogLevel);
             ssdp = new SSDPClient();
             ssdp.DeviceFound += new SSDPClient.DeviceFoundHandler(DeviceFound);
             ssdp.DeviceLost += new SSDPClient.DeviceLostHandler(DeviceLost);

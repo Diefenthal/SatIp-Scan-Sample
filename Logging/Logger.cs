@@ -55,7 +55,7 @@ namespace SatIp
             if (!System.IO.Path.IsPathRooted(filePath))
             {
                 filePath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
-                                        System.IO.Path.Combine(@"SatIp RtspSample\Logs", filePath));
+                                        System.IO.Path.Combine(@"SatIp Scan Sample\Logs", filePath));
             }
 
             Level level = Level.Debug;
