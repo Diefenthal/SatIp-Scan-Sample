@@ -269,7 +269,7 @@
             this.cbxDiseqC.FormattingEnabled = true;
             this.cbxDiseqC.Location = new System.Drawing.Point(78, 20);
             this.cbxDiseqC.Name = "cbxDiseqC";
-            this.cbxDiseqC.Size = new System.Drawing.Size(62, 21);
+            this.cbxDiseqC.Size = new System.Drawing.Size(159, 21);
             this.cbxDiseqC.TabIndex = 5;
             this.cbxDiseqC.SelectedIndexChanged += new System.EventHandler(this.CbxDiseqC_SelectedIndexChanged);
             // 

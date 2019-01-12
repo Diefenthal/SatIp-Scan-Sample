@@ -235,6 +235,7 @@ namespace SatIp.Usercontrols
                     }                        
                     /* Say the Sat>IP server we want Receives the Recieption Details SDP */
                     statuscode = _device.RtspSession.Describe();
+                    /* the Thread.Sleep is needed for Sat>Ip Devices (Octopus Net) that report the locked to late without this locked will the Frequency skip  */
                     Thread.Sleep(5000);
                     if (_locked)
                     {
@@ -243,6 +244,8 @@ namespace SatIp.Usercontrols
                         GetPAT(_udpclient, _remoteEndPoint, out pat);
                         /* Say the Sat>IP server we want not more Receives the ProgramAssociationTable */
                         _device.RtspSession.Play("&delpids=0");
+                        /* Check the Length of pat.Programs for pmt should it not more 14 Pids at once inside the Play Request possible fix is to split into Chuncks*/
+
                         /* Loop the ProgramAssociationTable Programs */
                         foreach (var i in pat.Programs)
                         {
