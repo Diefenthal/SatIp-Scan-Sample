@@ -150,12 +150,12 @@ namespace SatIp.Usercontrols
                     if (strArray[4] == "C2")
                     {
                         //rtsp://192.168.128.5/?freq=793.982&bw=8&msys=dvbc2&c2tft=0&ds=0&plp=0&pids=0,16,100,308,256
-                        tuning = string.Format("freq={0}&bw={1}&msys=dvbc2&c2tft={2}&ds={3}&plp={4}&pids=0", source, strArray[0].ToString(), strArray[1].ToLower().ToString(), strArray[2].ToLower().ToString(), strArray[3].ToString(), strArray[5].ToLower().ToString());
+                        tuning = string.Format("freq={0}&bw={1}&msys=dvbc2&c2tft={2}&ds={3}&plp={4}&pids=0", strArray[0].ToString(), strArray[1].ToLower().ToString(), strArray[2].ToLower().ToString(), strArray[3].ToString(), strArray[5].ToLower().ToString());
                     }
                     else
                     {
                         //rtsp://192.168.128.5/?freq=623.25&msys=dvbc&mtype=256qam&sr=6900&specinv=0&pids=0,16,50,201,301
-                        tuning = string.Format("freq={0}&msys=dvbc&mtype={1}&sr={2}&specinv={3}&pids=0", source, strArray[0].ToString(), strArray[1].ToLower().ToString(), strArray[2].ToString(), strArray[3].ToString(), strArray[5].ToLower().ToString());
+                        tuning = string.Format("freq={0}&msys=dvbc&mtype={1}&sr={2}&specinv={3}&pids=0", strArray[0].ToString(), strArray[1].ToLower().ToString(), strArray[2].ToString(), strArray[3].ToString(), strArray[5].ToLower().ToString());
                     }
 
                     RtspStatusCode statuscode;
