@@ -500,7 +500,10 @@ namespace SatIp
                     pointer += descriptor_length;
                     l2 -= descriptor_length;
                     l1 -= descriptor_length;
-                    _networkInformations.Add(TransportStreamId, netInfo);
+                    if (!_networkInformations.ContainsKey(transport_stream_id))
+                    {
+                        _networkInformations.Add(transport_stream_id, netInfo);
+                    }
                 }
                 //if (netInfo.netType != NetworkType.Unknown)
                 //    baseNode.Text = "NIT " + netInfo.netType.ToString();
