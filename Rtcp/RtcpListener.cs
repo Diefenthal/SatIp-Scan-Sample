@@ -38,11 +38,11 @@ namespace SatIp
             {
                 case TransmissionMode.Unicast:
                     _udpClient = new UdpClient(new IPEndPoint(IPAddress.Parse(address), port));
-                    _serverEndPoint = new IPEndPoint(IPAddress.Any, 0);
+                    _serverEndPoint = new IPEndPoint(IPAddress.Parse(address), port);
                     break;
                 case TransmissionMode.Multicast:
                     _multicastEndPoint = new IPEndPoint(IPAddress.Parse(address), port);
-                    _serverEndPoint = new IPEndPoint(IPAddress.Any, 0);
+                    _serverEndPoint = new IPEndPoint(IPAddress.Parse(address), port);
                     _udpClient = new UdpClient();
                     _udpClient.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, 1);
                     _udpClient.ExclusiveAddressUse = false;
@@ -107,12 +107,10 @@ namespace SatIp
             {               
                 bool receivedGoodBye = false;                
                 try
-                {
-                    //_udpClient.Client.ReceiveTimeout = 400;
-                    IPEndPoint serverEndPoint = new IPEndPoint(IPAddress.Any, 0);
+                {                    
                     while (!receivedGoodBye && !_rtcpListenerThreadStopEvent.WaitOne(1))
                     {
-                        byte[] packets = _udpClient.Receive(ref serverEndPoint);
+                        byte[] packets = _udpClient.Receive(ref _serverEndPoint);
                         if (packets == null)
                         {
                             continue;
