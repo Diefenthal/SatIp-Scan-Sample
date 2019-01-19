@@ -87,18 +87,18 @@ namespace SatIp
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder();
-            sb.AppendFormat("Sender Report.\n");
-            sb.AppendFormat("Version : {0} .\n", Version);
-            sb.AppendFormat("Padding : {0} .\n", Padding);
-            sb.AppendFormat("Report Count : {0} .\n", ReportCount);
-            sb.AppendFormat("PacketType: {0} .\n", Type);
-            sb.AppendFormat("Length : {0} .\n", Length);
-            sb.AppendFormat("SynchronizationSource : {0} .\n", SynchronizationSource);
-            sb.AppendFormat("NTP Timestamp : {0} .\n", Utils.NptTimestampToDateTime(NPTTimeStamp));
-            sb.AppendFormat("RTP Timestamp : {0} .\n", RTPTimeStamp);
-            sb.AppendFormat("Sender PacketCount : {0} .\n", SenderPacketCount);
-            sb.AppendFormat("Sender Octet Count : {0} .\n", SenderOctetCount);            
-            sb.AppendFormat(".\n");
+            sb.AppendFormat("Sender Report.\r\n");
+            sb.AppendFormat("Version : {0} .\r\n", Version);
+            sb.AppendFormat("Padding : {0} .\r\n", Padding);
+            sb.AppendFormat("Report Count : {0} .\r\n", ReportCount);
+            sb.AppendFormat("PacketType: {0} .\r\n", Type);
+            sb.AppendFormat("Length : {0} .\r\n", Length);
+            sb.AppendFormat("SynchronizationSource : {0} .\r\n", SynchronizationSource);
+            sb.AppendFormat("NTP Timestamp : {0} .\r\n", Utils.NptTimestampToDateTime(NPTTimeStamp));
+            sb.AppendFormat("RTP Timestamp : {0} .\r\n", RTPTimeStamp);
+            sb.AppendFormat("Sender PacketCount : {0} .\r\n", SenderPacketCount);
+            sb.AppendFormat("Sender Octet Count : {0} .\r\n", SenderOctetCount);            
+            sb.AppendFormat(".\r\n");
             return sb.ToString();
         }
     }

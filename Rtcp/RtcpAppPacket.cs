@@ -51,17 +51,17 @@ namespace SatIp
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder();
-            sb.AppendFormat("Application Specific.\n");
-            sb.AppendFormat("Version : {0} .\n", Version);
-            sb.AppendFormat("Padding : {0} .\n", Padding);
-            sb.AppendFormat("Report Count : {0} .\n", ReportCount);
-            sb.AppendFormat("PacketType: {0} .\n", Type);
-            sb.AppendFormat("Length : {0} .\n", Length);
-            sb.AppendFormat("SynchronizationSource : {0} .\n", SynchronizationSource);
-            sb.AppendFormat("Name : {0} .\n", Name);
-            sb.AppendFormat("Identity : {0} .\n", Identity);
-            sb.AppendFormat("Data : {0} .\n", Data);            
-            sb.AppendFormat(".\n");
+            sb.AppendFormat("Application Specific.\r\n");
+            sb.AppendFormat("Version : {0} .\r\n", Version);
+            sb.AppendFormat("Padding : {0} .\r\n", Padding);
+            sb.AppendFormat("Report Count : {0} .\r\n", ReportCount);
+            sb.AppendFormat("PacketType: {0} .\r\n", Type);
+            sb.AppendFormat("Length : {0} .\r\n", Length);
+            sb.AppendFormat("SynchronizationSource : {0} .\r\n", SynchronizationSource);
+            sb.AppendFormat("Name : {0} .\r\n", Name);
+            sb.AppendFormat("Identity : {0} .\r\n", Identity);
+            sb.AppendFormat("Data : {0} .\r\n", Data);            
+            sb.AppendFormat(".\r\n");
             return sb.ToString();
         }
     }

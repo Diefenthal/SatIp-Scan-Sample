@@ -44,15 +44,15 @@ namespace SatIp
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder();
-            sb.AppendFormat("ByeBye .\n");
-            sb.AppendFormat("Version : {0} .\n", Version);
-            sb.AppendFormat("Padding : {0} .\n", Padding);
-            sb.AppendFormat("Report Count : {0} .\n", ReportCount);
-            sb.AppendFormat("PacketType: {0} .\n", Type);
-            sb.AppendFormat("Length : {0} .\n", Length);
-            sb.AppendFormat("SynchronizationSources : {0} .\n", SynchronizationSources);
-            sb.AppendFormat("ReasonForLeaving : {0} .\n", ReasonForLeaving);            
-            sb.AppendFormat(".\n");
+            sb.AppendFormat("ByeBye .\r\n");
+            sb.AppendFormat("Version : {0} .\r\n", Version);
+            sb.AppendFormat("Padding : {0} .\r\n", Padding);
+            sb.AppendFormat("Report Count : {0} .\r\n", ReportCount);
+            sb.AppendFormat("PacketType: {0} .\r\n", Type);
+            sb.AppendFormat("Length : {0} .\r\n", Length);
+            sb.AppendFormat("SynchronizationSources : {0} .\r\n", SynchronizationSources);
+            sb.AppendFormat("ReasonForLeaving : {0} .\r\n", ReasonForLeaving);            
+            sb.AppendFormat(".\r\n");
             return sb.ToString();
         }
     }
