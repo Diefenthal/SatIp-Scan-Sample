@@ -242,7 +242,7 @@ namespace SatIp.Usercontrols
                         _device.RtspSession.Setup(tuning, TransmissionMode.Unicast);
                         _device.RtspSession.Play(string.Empty);
                         _udpclient = new UdpClient(_device.RtspSession.RtpPort);
-                        _remoteEndPoint = new IPEndPoint(IPAddress.Any, 0);
+                        _remoteEndPoint = new IPEndPoint(IPAddress.Parse(_device.RtspSession.Destination), _device.RtspSession.RtpPort);
                         _device.RtspSession.RecieptionInfoChanged += RtspSession_RecieptionInfoChanged;                            
                     }
                     else
@@ -391,7 +391,7 @@ namespace SatIp.Usercontrols
 
             pat = new PATParser();
             bool retval = false;
-            while (!retval)
+            while ((!retval))
             {
                 var receivedbytes = client.Receive(ref endpoint);
                 RtpPacket h = RtpPacket.Decode(receivedbytes);
@@ -419,7 +419,7 @@ namespace SatIp.Usercontrols
         {
             nit = new NITParser();
             bool retval = false;
-            while (!retval)
+            while ((!retval) )
             {
                 var receivedbytes = client.Receive(ref endpoint);
                 RtpPacket h = RtpPacket.Decode(receivedbytes);
@@ -446,7 +446,7 @@ namespace SatIp.Usercontrols
         {
             pmt = new PMTParser(pid);
             bool retval = false;
-            while (!retval)
+            while ((!retval))
             {
                 var receivedbytes = client.Receive(ref endpoint);
                 RtpPacket h = RtpPacket.Decode(receivedbytes);
@@ -473,7 +473,7 @@ namespace SatIp.Usercontrols
         {
             sdt = new SDTParser();
             bool retval = false;
-            while (!retval)
+            while ((!retval))
             {                
                 var receivedbytes = client.Receive(ref endpoint);
                 RtpPacket h = RtpPacket.Decode(receivedbytes);

@@ -181,7 +181,7 @@ namespace SatIp.Usercontrols
                         if (statuscode.Equals(RtspStatusCode.Ok))
                         {
                             _udpclient = new UdpClient(_device.RtspSession.RtpPort);
-                            _remoteEndPoint = new IPEndPoint(IPAddress.Any, 0);
+                            _remoteEndPoint = new IPEndPoint(IPAddress.Parse(_device.RtspSession.Destination), _device.RtspSession.RtpPort);
                             _device.RtspSession.RecieptionInfoChanged += new RtspSession.RecieptionInfoChangedEventHandler(RtspSession_RecieptionInfoChanged);
 
                         }

@@ -145,7 +145,7 @@ namespace SatIp.Usercontrols
                         _device.RtspSession.Setup(tuning, TransmissionMode.Unicast);
                         _device.RtspSession.Play(string.Empty);
                         _udpclient = new UdpClient(_device.RtspSession.RtpPort);
-                        _remoteEndPoint = new IPEndPoint(IPAddress.Any, 0);
+                        _remoteEndPoint = new IPEndPoint(IPAddress.Parse(_device.RtspSession.Destination), _device.RtspSession.RtpPort);
                         _device.RtspSession.RecieptionInfoChanged += RtspSession_RecieptionInfoChanged;                      
 
                         ////}
