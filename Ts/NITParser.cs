@@ -76,25 +76,25 @@ namespace SatIp
             {
                 case 0:
                     return "not defined";
-                    break;
+                    
                 case 1:
                     return "1/2 conv. code rate";
-                    break;
+                    
                 case 2:
                     return "2/3 conv. code rate";
-                    break;
+                    
                 case 3:
                     return "3/4 conv. code rate";
-                    break;
+                    
                 case 4:
                     return "5/6 conv. code rate";
-                    break;
+                    
                 case 5:
                     return "7/8 conv. code rate";
-                    break;
+                    
                 case 6:
                     return "8/9 conv. code rate";
-                    break;
+                    
             }
             return "no conv. coding";
         }
@@ -104,13 +104,13 @@ namespace SatIp
             {
                 case 0:
                     return "not defined";
-                    break;
+                    
                 case 1:
                     return "no outer FEC coding";
-                    break;
+                    
                 case 2:
                     return "RS(204/188)";
-                    break;
+                    
             }
             return "other (reserved)";
         }
@@ -261,7 +261,7 @@ namespace SatIp
 
         private TsSectionDecoder dec1;
         private TsSectionDecoder dec2;
-        private string networkName = "Unknown";
+        
         private Dictionary<int, NetworkInfo> _networkInformations = new Dictionary<int, NetworkInfo>();
         private NetworkInfo netInfo = null;
         public int TransportStreamId;
@@ -288,7 +288,7 @@ namespace SatIp
         {
             netInfo.service_id = (0x100 * buf[start]) + buf[start + 1];
             netInfo.LCN = (0x100 * (buf[start + 2] & 0x3)) + buf[start + 3];
-            return;
+            //return;
             // 32 bits per record
             int n = buf[start + 1] / 4;
             if (n < 1)
@@ -482,21 +482,21 @@ namespace SatIp
                     int descriptor_tag = section.Data[pointer];
                     int descriptor_length = section.Data[pointer + 1] + 2;
 
-                    switch (descriptor_tag)
-                    {
-                        case 0x43: // sat
-                            DVB_GetSatDelivSys(section.Data, pointer, descriptor_length);
-                            break;
-                        case 0x44: // cable
-                            DVB_GetCableDelivSys(section.Data, pointer, descriptor_length);
-                            break;
-                        case 0x5A: // terrestrial
-                            DVB_GetTerrestrialDelivSys(section.Data, pointer, descriptor_length);
-                            break;
-                        case 0x83: // logical channel number
-                            DVB_GetLogicalChannelNumber(original_network_id, transport_stream_id, section.Data, pointer);
-                            break;
-                    }
+                    //switch (descriptor_tag)
+                    //{
+                    //    //case 0x43: // sat
+                    //    //    DVB_GetSatDelivSys(section.Data, pointer, descriptor_length);
+                    //    //    break;
+                    //    //case 0x44: // cable
+                    //    //    DVB_GetCableDelivSys(section.Data, pointer, descriptor_length);
+                    //    //    break;
+                    //    //case 0x5A: // terrestrial
+                    //    //    DVB_GetTerrestrialDelivSys(section.Data, pointer, descriptor_length);
+                    //    //    break;
+                    //    //case 0x83: // logical channel number
+                    //    //    DVB_GetLogicalChannelNumber(original_network_id, transport_stream_id, section.Data, pointer);
+                    //    //    break;
+                    //}
                     pointer += descriptor_length;
                     l2 -= descriptor_length;
                     l1 -= descriptor_length;

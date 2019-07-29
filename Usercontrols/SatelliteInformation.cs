@@ -257,30 +257,36 @@ namespace SatIp.Usercontrols
                     {
                         /* Say the Sat>IP server we want Receives the ProgramAssociationTable */
                         //_device.RtspSession.Play("&addpids=0");
-                        GetPAT(_udpclient, _remoteEndPoint, out pat);
-                        /* Say the Sat>IP server we want not more Receives the ProgramAssociationTable */
-                        _device.RtspSession.Play("&delpids=0");
-                        /* Check the Length of pat.Programs for pmt should it not more 14 Pids at once inside the Play Request possible fix is to split into Chuncks*/
-
-                        /* Loop the ProgramAssociationTable Programs */
-                        foreach (var i in pat.Programs)
+                        if (GetPAT(_udpclient, _remoteEndPoint, out pat))
                         {
-                            if (i.Key == 0)
-                            {
-                                /* Say the Sat>IP server we want Receives the NetworkinformationTable  */
-                                _device.RtspSession.Play(string.Format("&addpids={0}", i.Value));
-                                GetNIT(_udpclient, _remoteEndPoint, pat.TransportStreamId, out nit);
-                                /* Say the Sat>IP server we want not more Receives the NetworkInformationTable */
-                                _device.RtspSession.Play(string.Format("&delpids={0}", i.Value));
-                            }
-                            else
-                            {
-                                /* Say the Sat>IP server we want Receives the ProgramMapTable for Pid x */
-                                _device.RtspSession.Play(string.Format("&addpids={0}", i.Value));
-                                GetPMT(_udpclient, _remoteEndPoint, (short)i.Value, out pmt);
-                                /* Say the Sat>IP server we want not more Receives the ProgramMapTable for Pid x */
-                                _device.RtspSession.Play(string.Format("&delpids={0}", i.Value));                               
-                            }
+                            /* Say the Sat>IP server we want not more Receives the ProgramAssociationTable */
+                            _device.RtspSession.Play("&delpids=0");
+                            /* Check the Length of pat.Programs for pmt should it not more 14 Pids at once inside the Play Request possible fix is to split into Chuncks*/
+
+                            /* Loop the ProgramAssociationTable Programs */
+                            //foreach (var i in pat.Programs)
+                            //{
+                            //    if (i.Key == 0)
+                            //    {
+                            //        /* Say the Sat>IP server we want Receives the NetworkinformationTable  */
+                            //        _device.RtspSession.Play(string.Format("&addpids={0}", i.Value));
+                            //        if (GetNIT(_udpclient, _remoteEndPoint, pat.TransportStreamId, out nit))
+                            //        {
+                            //            /* Say the Sat>IP server we want not more Receives the NetworkInformationTable */
+                            //            _device.RtspSession.Play(string.Format("&delpids={0}", i.Value));
+                            //        }
+                            //    }
+                            //    else
+                            //    {
+                            //        /* Say the Sat>IP server we want Receives the ProgramMapTable for Pid x */
+                            //        _device.RtspSession.Play(string.Format("&addpids={0}", i.Value));
+                            //        if (GetPMT(_udpclient, _remoteEndPoint, (short)i.Value, out pmt))
+                            //        {
+                            //            /* Say the Sat>IP server we want not more Receives the ProgramMapTable for Pid x */
+                            //            _device.RtspSession.Play(string.Format("&delpids={0}", i.Value));
+                            //        }
+                            //    }
+                            //}
                         }
                         /*Now we had in the best case the ProgramAssociationTable, NetworkInformationTable, the ProgramMapTables for each 
                             * in ProgramAssociationTable referenced Program and need now the ServiceDescription Table
@@ -389,7 +395,7 @@ namespace SatIp.Usercontrols
         private bool GetPAT(UdpClient client, IPEndPoint endpoint, out PATParser pat)
         {
 
-            pat = new PATParser();
+            pat = new PATParser(_device.RtspSession);
             bool retval = false;
             while ((!retval))
             {
@@ -408,6 +414,7 @@ namespace SatIp.Usercontrols
                         {
                             retval = true;
                         }
+                        
 
                     }
                 }
@@ -442,33 +449,33 @@ namespace SatIp.Usercontrols
             SetControlPropertyThreadSafe(lblNIT, "BackColor", Color.DarkGreen);
             return retval;
         }
-        private bool GetPMT(UdpClient client, IPEndPoint endpoint, short pid, out PMTParser pmt)
-        {
-            pmt = new PMTParser(pid);
-            bool retval = false;
-            while ((!retval))
-            {
-                var receivedbytes = client.Receive(ref endpoint);
-                RtpPacket h = RtpPacket.Decode(receivedbytes);
-                if ((receivedbytes.Length > 12) && ((receivedbytes.Length - 12) % 188) == 0)
-                {
-                    double num9 = (((double)(receivedbytes.Length - 12)) / 188.0) - 1.0;
-                    for (double j = 0.0; j <= num9; j++)
-                    {
-                        byte[] destinationarray = (byte[])Array.CreateInstance(typeof(byte), 188);
-                        Array.Copy(receivedbytes, (int)Math.Round((double)(12.0 + (j * 188))), destinationarray, 0, 188);
+        //private bool GetPMT(UdpClient client, IPEndPoint endpoint, short pid, out PMTParser pmt)
+        //{
+        //    pmt = new PMTParser(pid);
+        //    bool retval = false;
+        //    while ((!retval))
+        //    {
+        //        var receivedbytes = client.Receive(ref endpoint);
+        //        RtpPacket h = RtpPacket.Decode(receivedbytes);
+        //        if ((receivedbytes.Length > 12) && ((receivedbytes.Length - 12) % 188) == 0)
+        //        {
+        //            double num9 = (((double)(receivedbytes.Length - 12)) / 188.0) - 1.0;
+        //            for (double j = 0.0; j <= num9; j++)
+        //            {
+        //                byte[] destinationarray = (byte[])Array.CreateInstance(typeof(byte), 188);
+        //                Array.Copy(receivedbytes, (int)Math.Round((double)(12.0 + (j * 188))), destinationarray, 0, 188);
 
-                        pmt.OnTsPacket(destinationarray);
-                        if (pmt.IsReady)
-                        {
-                            retval = true;
-                        }
-                    }
-                }
-            }
-            SetControlPropertyThreadSafe(lblPMT, "BackColor", Color.DarkGreen);
-            return retval;
-        }
+        //                pmt.OnTsPacket(destinationarray);
+        //                if (pmt.IsReady)
+        //                {
+        //                    retval = true;
+        //                }
+        //            }
+        //        }
+        //    }
+        //    SetControlPropertyThreadSafe(lblPMT, "BackColor", Color.DarkGreen);
+        //    return retval;
+        //}
         private bool GetSDT(UdpClient client, IPEndPoint endpoint, out SDTParser sdt)
         {
             sdt = new SDTParser();

@@ -28,7 +28,7 @@ using System.Threading;
 
 namespace SatIp
 {
-    public class RtspSession : INotifyPropertyChanged, IDisposable
+    public class RtspSession : INotifyPropertyChanged, IDisposable ,IPidFilter
     {
         #region Private Fields
         private static readonly Regex RegexRtspSessionHeader = new Regex(@"\s*([^\s;]+)(;timeout=(\d+))?");
@@ -796,7 +796,17 @@ namespace SatIp
                 TsPacket(this, args);
             }
         }
-        
+
+        public void AddPid(int pid)
+        {
+            Play(string.Format("&addpids={0}", pid));
+        }
+
+        public void RemovePid(int pid)
+        {
+            Play(string.Format("&delpids={0}", pid));
+        }
+
         public delegate void TsPacketHandler(object sender, TsPacketArgs e);       
         public delegate void RecieptionInfoChangedEventHandler(object sender, RecieptionInfoArgs e);
 

@@ -18,38 +18,36 @@ using System.Collections.Generic;
 
 namespace SatIp
 {
-    public class PATParser
+    public class PATParser : TsSectionDecoder 
     {
-        private TsSectionDecoder _sectionDecoder;
-        private List<short> _pids = new List<short>();
-        private Dictionary<int, int> _programNumbers = new Dictionary<int, int>();
-        public int NetworkPid;
-
-        public bool HasNitReference { get; private set; }
+        #region Fields
+        private IPidFilter _callback;
+        private List<PMTParser> pmtParsers;
+        private bool patReady;
+        private bool pmtReady;
+        #endregion 
+        #region Properties
         public int TransportStreamId { get; private set; }
-
-        private int _programcount;
+        public List<PMTParser> PmtParsers { get => pmtParsers; set => pmtParsers = value; }
+        public bool PatReady { get => patReady; set => patReady = value; }
         public bool IsReady;
-
-        public PATParser()
+        #endregion 
+        #region Constructor
+        public PATParser(IPidFilter callback)
         {
-            _sectionDecoder = new TsSectionDecoder(0x00, 0x00);
-            _sectionDecoder.OnSectionDecoded += new TsSectionDecoder.MethodOnSectionDecoded(this.OnNewSection);
+            _callback = callback;
             IsReady = false;
-
+            patReady = false;
+            pmtReady = false;            
+            pmtParsers = new List<PMTParser>();
+            Pid = 0;
+            TableId = 0;
         }
-        public Dictionary<int, int> Programs
+        #endregion
+        #region Overrides
+        public override void OnNewSection(TsSection section)
         {
-            get
-            {
-                return _programNumbers;
-            }
-        }
-
-
-        public void OnNewSection(TsSection section)
-        {
-            TransportStreamId = section.table_id_extension;
+            if (section.table_id != TableId) return;
             int pmtCount = 0;
             int loop = (section.section_length - 9) / 4;
             for (int i = 0; i < loop; i++)
@@ -58,29 +56,55 @@ namespace SatIp
                 int program_nr = ((section.Data[offset]) << 8) + section.Data[offset + 1];
                 int pmt_pid = ((section.Data[offset + 2] & 0x1F) << 8) + section.Data[offset + 3];
 
-                if (program_nr == 0)
-                {
-                    NetworkPid = pmt_pid;
-                    HasNitReference = true;
-                }
-                if (!_programNumbers.ContainsKey(program_nr))
-                {
-                    _programNumbers.Add(program_nr, pmt_pid);
-                }
+                if (pmt_pid <= 0x10 || pmt_pid > 0x1FFF)
+                    continue;
+                if(_callback!= null) { _callback.AddPid(pmt_pid); }
+                pmtParsers.Add(new PMTParser(pmt_pid, program_nr));
+                pmtCount++;
             }
-            pmtCount++;
-
+            patReady = true;
             IsReady = true;
         }
-        public void OnTsPacket(byte[] tsPacket)
+        public override void OnTsPacket(byte[] tsPacket)
+        { 
+            if (IsReady)
+                return;
+            if (patReady)
+            {
+                pmtReady = true;
+                foreach (PMTParser pmtp in pmtParsers)
+                {
+                    pmtp.OnTsPacket(tsPacket);
+                    if (!pmtp.IsReady)
+                        pmtReady = false;
+                }
+                if (pmtReady)
+                {
+                    //if (_callback != null) { _callback.RemovePid(base.Pid); }
+                    IsReady = true;
+                }
+            }
+            else
+                base.OnTsPacket(tsPacket);
+        }
+        #endregion
+        #region Methods
+        public List<ushort> GetPmtStreamPids()
         {
-            _sectionDecoder.OnTsPacket(tsPacket);
+            List<ushort> streamPids = new List<ushort>();
+            foreach (PMTParser pmtp in pmtParsers)
+                streamPids.AddRange(pmtp.streamPids);
+            return streamPids;
         }
         public void Reset()
         {
-            
+            base.Reset();
             IsReady = false;
-            
+            patReady = false;
+            pmtReady = false;            
+            foreach (PMTParser pmtp in pmtParsers)
+                pmtp.Reset();
         }
+        #endregion
     }
 }
