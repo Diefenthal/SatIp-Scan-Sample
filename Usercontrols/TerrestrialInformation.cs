@@ -347,7 +347,6 @@ namespace SatIp.Usercontrols
         }
         private bool GetPAT(UdpClient client, IPEndPoint endpoint, out PATParser pat)
         {
-
             pat = new PATParser(_device.RtspSession);
             bool retval = false;
             while (!retval)
@@ -363,15 +362,19 @@ namespace SatIp.Usercontrols
                         byte[] destinationarray = (byte[])Array.CreateInstance(typeof(byte), 188);
                         Array.Copy(receivedbytes, (int)Math.Round((double)(12.0 + (j * 188))), destinationarray, 0, 188);
                         pat.OnTsPacket(destinationarray);
-                        if (pat.IsReady)
+                        if (pat.PatReady)
                         {
-                            retval = true;
+                            SetControlPropertyThreadSafe(lblPAT, "BackColor", Color.DarkGreen);
+                            
+                            if (pat.IsReady)
+                            {
+                                SetControlPropertyThreadSafe(lblPMT, "BackColor", Color.DarkGreen);
+                                retval = true;
+                            }
                         }
-
                     }
                 }
-            }
-            SetControlPropertyThreadSafe(lblPAT, "BackColor", Color.DarkGreen);
+            }            
             return retval;
         }
 

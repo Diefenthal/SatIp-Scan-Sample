@@ -15,6 +15,7 @@
     along with SatIp.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System.Collections.Generic;
+using System.Threading;
 
 namespace SatIp
 {
@@ -58,7 +59,11 @@ namespace SatIp
 
                 if (pmt_pid <= 0x10 || pmt_pid > 0x1FFF)
                     continue;
-                if(_callback!= null) { _callback.AddPid(pmt_pid); }
+                if(_callback!= null)
+                {
+                    Thread.Sleep(250);
+                    _callback.AddPid(pmt_pid);
+                }
                 pmtParsers.Add(new PMTParser(pmt_pid, program_nr));
                 pmtCount++;
             }
