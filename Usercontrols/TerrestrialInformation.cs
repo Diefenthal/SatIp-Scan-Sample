@@ -125,11 +125,13 @@ namespace SatIp.Usercontrols
                     if (strArray[2] == "T2")
                     {
                         //   514,8,T2,16K,64QAM,19128,35
-                        // frequency,bandwith,modulationsystem, modulationtype, guardintervall,fec
-                        //tuning = string.Format("freq={0}&bw={1}&msys={2}&pids=0,17",
-                        //    strArray[0].ToString(), strArray[1].ToString(), "dvbt2");
-                        tuning = string.Format("freq={0}&bw={1}&msys=dvbt2&pids=0",
-                            strArray[0].ToString(), strArray[1].ToLower().ToString(), "dvbt2");
+                        tuning = string.Format("freq={0}&bw={1}&msys=dvbt2&tmode={2}&mtype={3}&gi={4}&fec={5}&pids=0,1,16,17,18,20",
+                            strArray[0].ToString(),
+                            strArray[1].ToLower().ToString(),
+                            strArray[3].ToLower().ToString(),
+                            strArray[4].ToLower().ToString(),
+                            strArray[5].ToLower().ToString(),
+                            strArray[6].ToLower().ToString());
                     }
                     else
                     {
