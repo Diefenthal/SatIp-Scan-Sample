@@ -67,8 +67,7 @@ namespace SatIp
                 pmtParsers.Add(new PMTParser(pmt_pid, program_nr));
                 pmtCount++;
             }
-            patReady = true;
-            IsReady = true;
+            patReady = true;            
         }
         public override void OnTsPacket(byte[] tsPacket)
         { 
@@ -83,8 +82,7 @@ namespace SatIp
                     if (!pmtp.IsReady)
                         pmtReady = false;
                 }
-                if (pmtReady)
-                {
+                if (pmtReady)                {
                     //if (_callback != null) { _callback.RemovePid(base.Pid); }
                     IsReady = true;
                 }
