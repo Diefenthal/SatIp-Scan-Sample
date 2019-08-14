@@ -135,9 +135,10 @@ namespace SatIp
                         case 5:
                             return "256 QAM";
                     }
-                }
-                break;
+                    break;
+                }                
                 case NetworkType.DVB_S:
+                {
                     switch (modulation)
                     {
                         case 0:
@@ -147,22 +148,10 @@ namespace SatIp
                         case 10:
                             return "8PSK";
                         case 11:
-                            return "16 QAM";                        
+                            return "16 QAM";
                     }
                     break;
-                case NetworkType.DVB_T:
-                    switch (modulation)
-                    {
-                        case 0:
-                            return "QPSK";
-                        case 1:
-                            return "16 QAM";                        
-                        case 10:
-                            return "64 QAM";
-                        case 11:
-                            return "reseverd for future use";                        
-                    }
-                    break;                   
+                }                
             }
             return "not set";
         }
@@ -263,7 +252,7 @@ namespace SatIp
         //    {
         //        case NetworkType.DVB_S:
         //            node.Nodes.Add("Symbolrate: " + symbolrate.ToString());
-        //            node.Nodes.Add("Modulation: " + ModulationToStr());
+        //            node.Nodes.Add("Modulation: " + ModulationToStr(NetworkType.DVB_S));
         //            node.Nodes.Add("FECinner: " + FECinnerToStr());
         //            node.Nodes.Add("Polarisation: " + PolarisationToStr());
         //            float opos = orbitalPosition / 10;
@@ -272,7 +261,7 @@ namespace SatIp
         //            break;
         //        case NetworkType.DVB_C:
         //            node.Nodes.Add("Symbolrate: " + symbolrate.ToString());
-        //            node.Nodes.Add("Modulation: " + ModulationToStr());
+        //            node.Nodes.Add("Modulation: " + ModulationToStr(NetworkType.DVB_C));
         //            node.Nodes.Add("FECinner: " + FECinnerToStr());
         //            node.Nodes.Add("FECouter: " + FECouterToStr());
         //            break;
@@ -515,21 +504,21 @@ namespace SatIp
                     int descriptor_tag = section.Data[pointer];
                     int descriptor_length = section.Data[pointer + 1] + 2;
 
-                    //switch (descriptor_tag)
-                    //{
-                    //    //case 0x43: // sat
-                    //    //    DVB_GetSatDelivSys(section.Data, pointer, descriptor_length);
-                    //    //    break;
-                    //    //case 0x44: // cable
-                    //    //    DVB_GetCableDelivSys(section.Data, pointer, descriptor_length);
-                    //    //    break;
-                    //    //case 0x5A: // terrestrial
-                    //    //    DVB_GetTerrestrialDelivSys(section.Data, pointer, descriptor_length);
-                    //    //    break;
-                    //    //case 0x83: // logical channel number
-                    //    //    DVB_GetLogicalChannelNumber(original_network_id, transport_stream_id, section.Data, pointer);
-                    //    //    break;
-                    //}
+                    switch (descriptor_tag)
+                    {
+                        case 0x43: // sat
+                            DVB_GetSatDelivSys(section.Data, pointer, descriptor_length);
+                            break;
+                        case 0x44: // cable
+                            DVB_GetCableDelivSys(section.Data, pointer, descriptor_length);
+                            break;
+                        case 0x5A: // terrestrial
+                            DVB_GetTerrestrialDelivSys(section.Data, pointer, descriptor_length);
+                            break;
+                        case 0x83: // logical channel number
+                            DVB_GetLogicalChannelNumber(original_network_id, transport_stream_id, section.Data, pointer);
+                            break;
+                    }
                     pointer += descriptor_length;
                     l2 -= descriptor_length;
                     l1 -= descriptor_length;
