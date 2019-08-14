@@ -238,17 +238,14 @@ namespace SatIp.Usercontrols
                     }
                     RtspStatusCode statuscode;
                     if (string.IsNullOrEmpty(_device.RtspSession.RtspSessionId))
-                    {                            
+                    {
                         _device.RtspSession.Setup(tuning, TransmissionMode.Unicast);
                         _device.RtspSession.Play(string.Empty);
+                        _device.RtspSession.RecieptionInfoChanged += RtspSession_RecieptionInfoChanged;
                         _udpclient = new UdpClient(_device.RtspSession.RtpPort);
                         _remoteEndPoint = new IPEndPoint(IPAddress.Parse(_device.RtspSession.Destination), _device.RtspSession.RtpPort);
-                        _device.RtspSession.RecieptionInfoChanged += RtspSession_RecieptionInfoChanged;                            
-                    }
-                    else
-                    {
-                        statuscode = _device.RtspSession.Play(tuning);
-                    }                        
+                        Thread.Sleep(2500);
+                    }                                        
                     /* Say the Sat>IP server we want Receives the Recieption Details SDP */
                     statuscode = _device.RtspSession.Describe();
                     /* the Thread.Sleep is needed for Sat>Ip Devices (Octopus Net) that report the locked to late without this locked will the Frequency skip  */

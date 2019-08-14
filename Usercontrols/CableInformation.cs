@@ -180,17 +180,13 @@ namespace SatIp.Usercontrols
                         statuscode = _device.RtspSession.Setup(tuning, TransmissionMode.Unicast);
                         if (statuscode.Equals(RtspStatusCode.Ok))
                         {
+                            _device.RtspSession.Setup(tuning, TransmissionMode.Unicast);
+                            _device.RtspSession.Play(string.Empty);
+                            _device.RtspSession.RecieptionInfoChanged += RtspSession_RecieptionInfoChanged;
                             _udpclient = new UdpClient(_device.RtspSession.RtpPort);
                             _remoteEndPoint = new IPEndPoint(IPAddress.Parse(_device.RtspSession.Destination), _device.RtspSession.RtpPort);
-                            _device.RtspSession.RecieptionInfoChanged += new RtspSession.RecieptionInfoChangedEventHandler(RtspSession_RecieptionInfoChanged);
-
-                        }
-                        else
-                        {
-                            var message = GetMessageFromStatuscode(statuscode);
-                            MessageBox.Show(String.Format("Setup retuns {0}", message), statuscode.ToString(), MessageBoxButtons.OK);
-                        }
-                        _device.RtspSession.Play(tuning);
+                            Thread.Sleep(2500);
+                        }                        
                     }
                     else
                     {
